@@ -1,0 +1,120 @@
+======================================================================
+PHASE 2 OUTPUT: ABSTRACT SYNTAX TREE (AST)
+======================================================================
+
+Program
+  statements:
+    DeclStmt
+      var_type: int
+      identifier: sum
+      init_value: None
+      line: 2
+    AssignStmt
+      identifier: sum
+      expression:
+        Literal
+          value: 0
+          lit_type: int
+          line: 3
+      line: 3
+    LoopStmt
+      var_name: i
+      start_expr:
+        Literal
+          value: 1
+          lit_type: int
+          line: 6
+      end_expr:
+        Literal
+          value: 10
+          lit_type: int
+          line: 6
+      step_expr:
+        Literal
+          value: 1
+          lit_type: int
+          line: 6
+      block:
+        Block
+          statements:
+            AssignStmt
+              identifier: sum
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: sum
+                      line: 7
+                      var_type: None
+                  operator: +
+                  right:
+                    Identifier
+                      name: i
+                      line: 7
+                      var_type: None
+                  line: 7
+                  result_type: None
+              line: 7
+      line: 6
+    PrintStmt
+      expression:
+        Identifier
+          name: sum
+          line: 10
+          var_type: None
+      line: 10
+    DeclStmt
+      var_type: int
+      identifier: product
+      init_value: None
+      line: 13
+    AssignStmt
+      identifier: product
+      expression:
+        Literal
+          value: 1
+          lit_type: int
+          line: 14
+      line: 14
+    LoopStmt
+      var_name: j
+      start_expr:
+        Literal
+          value: 1
+          lit_type: int
+          line: 16
+      end_expr:
+        Literal
+          value: 5
+          lit_type: int
+          line: 16
+      step_expr: None
+      block:
+        Block
+          statements:
+            AssignStmt
+              identifier: product
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: product
+                      line: 17
+                      var_type: None
+                  operator: *
+                  right:
+                    Identifier
+                      name: j
+                      line: 17
+                      var_type: None
+                  line: 17
+                  result_type: None
+              line: 17
+      line: 16
+    PrintStmt
+      expression:
+        Identifier
+          name: product
+          line: 20
+          var_type: None
+      line: 20

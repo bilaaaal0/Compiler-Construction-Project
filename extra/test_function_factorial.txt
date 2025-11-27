@@ -1,0 +1,18 @@
+// Test: Recursive factorial function
+func int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    int temp;
+    temp = n - 1;
+    int result;
+    result = factorial(temp);
+    return n * result;
+}
+
+int num;
+int fact;
+
+num = 5;
+fact = factorial(num);
+print fact;

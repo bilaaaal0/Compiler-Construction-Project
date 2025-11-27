@@ -1,0 +1,18 @@
+// Test: Simple function with multiple parameters
+func int add(int a, int b) {
+    return a + b;
+}
+
+func int multiply(int x, int y) {
+    return x * y;
+}
+
+int result1;
+int result2;
+int final;
+
+result1 = add(5, 3);
+result2 = multiply(4, 2);
+final = add(result1, result2);
+
+print final;

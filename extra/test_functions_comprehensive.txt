@@ -1,0 +1,61 @@
+// Comprehensive Function Test
+// Tests: multiple functions, recursion, nested calls
+
+// Simple addition
+func int add(int a, int b) {
+    return a + b;
+}
+
+// Simple multiplication
+func int multiply(int x, int y) {
+    return x * y;
+}
+
+// Recursive factorial
+func int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    int prev;
+    prev = n - 1;
+    int prevFact;
+    prevFact = factorial(prev);
+    return n * prevFact;
+}
+
+// Power function (recursive)
+func int power(int base, int exp) {
+    if (exp == 0) {
+        return 1;
+    }
+    int newExp;
+    newExp = exp - 1;
+    return base * power(base, newExp);
+}
+
+// Function that calls other functions
+func int calculate(int a, int b) {
+    int sum;
+    int product;
+    sum = add(a, b);
+    product = multiply(a, b);
+    return add(sum, product);
+}
+
+// Main program
+int result1;
+int result2;
+int result3;
+int result4;
+
+result1 = add(10, 5);
+print result1;
+
+result2 = factorial(5);
+print result2;
+
+result3 = power(2, 4);
+print result3;
+
+result4 = calculate(3, 4);
+print result4;

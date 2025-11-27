@@ -1,0 +1,15 @@
+
+
+func int Sum(int a, int b){
+
+return a+b;
+}
+
+
+int a = 3;
+int b= 4;
+
+print a;
+print b;
+
+print Sum(a,b);

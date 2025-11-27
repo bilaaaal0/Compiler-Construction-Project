@@ -1,0 +1,10 @@
+FUNC_Sum:
+MAIN:
+ALLOC a int
+a = 3
+ALLOC b int
+b = 4
+PRINT a
+PRINT b
+t1 = RETVAL
+PRINT t1

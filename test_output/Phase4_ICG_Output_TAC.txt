@@ -1,0 +1,20 @@
+FUNC_Sum:
+PARAM a 0
+PARAM b 1
+t0 = a + b
+RETURN t0
+RETURN 0
+END_FUNC_Sum
+MAIN:
+ALLOC a int
+a = 3
+ALLOC b int
+b = 4
+PRINT a
+PRINT b
+PUSH b
+PUSH a
+CALL FUNC_Sum 2
+t1 = RETVAL
+PRINT t1
+END_MAIN

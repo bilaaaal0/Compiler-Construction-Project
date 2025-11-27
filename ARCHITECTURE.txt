@@ -1,0 +1,408 @@
+================================================================================
+                    MINI COMPILER - ARCHITECTURE DIAGRAM
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           SOURCE CODE (program.txt)                         │
+│                     int x; x = 5 + 3; print x;                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PHASE 1: LEXICAL ANALYSIS (lexer.py)                     │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  Character Stream → Token Recognition → Token Generation              │  │
+│  │  • Keywords (int, float, if, while, ...)                             │  │
+│  │  • Identifiers (x, y, sum, ...)                                      │  │
+│  │  • Literals (10, 3.14, 'a')                                          │  │
+│  │  • Operators (+, -, *, ==, <=, ...)                                  │  │
+│  │  • Delimiters ({, }, ;, (, ))                                        │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+                    [INT, IDENTIFIER(x), SEMICOLON, ...]
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              PHASE 2: SYNTAX ANALYSIS (parser.py + ast_nodes.py)            │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  Recursive Descent Parser                                             │  │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │  │
+│  │  │  parse_stmt() ──┬── parse_decl_stmt()                           │  │  │
+│  │  │                 ├── parse_assign_stmt()                         │  │  │
+│  │  │                 ├── parse_if_stmt()                             │  │  │
+│  │  │                 ├── parse_while_stmt()                          │  │  │
+│  │  │                 ├── parse_for_stmt()                            │  │  │
+│  │  │                 ├── parse_print_stmt()                          │  │  │
+│  │  │                 └── parse_input_stmt()                          │  │  │
+│  │  │                                                                  │  │  │
+│  │  │  parse_expr() ──┬── parse_additive()                            │  │  │
+│  │  │                 └── parse_multiplicative()                      │  │  │
+│  │  └─────────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                         │  │
+│  │  Builds Abstract Syntax Tree (AST)                                     │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+                              Program (AST Root)
+                                 ├─ DeclStmt
+                                 ├─ AssignStmt
+                                 └─ PrintStmt
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│         PHASE 3: SEMANTIC ANALYSIS (semantic_analyzer.py)                   │
+│                  + SYMBOL TABLE (symbol_table.py)                           │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  AST Visitor Pattern                                                   │  │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │  │
+│  │  │  visit_DeclStmt()    → Insert into symbol table                │  │  │
+│  │  │  visit_AssignStmt()  → Type check + lookup                     │  │  │
+│  │  │  visit_BinaryOp()    → Type inference                          │  │  │
+│  │  │  visit_Identifier()  → Declaration check                       │  │  │
+│  │  └─────────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                         │  │
+│  │  Symbol Table (Stack of Scopes)                                        │  │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │  │
+│  │  │  Scope 0 (Global): {x: SymbolEntry(int, line=1, ...)}          │  │  │
+│  │  │  Scope 1 (Block):  {y: SymbolEntry(float, line=5, ...)}        │  │  │
+│  │  │  Scope 2 (Nested): {z: SymbolEntry(int, line=10, ...)}         │  │  │
+│  │  └─────────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                         │  │
+│  │  Type Checking Rules:                                                  │  │
+│  │  • int + int → int                                                     │  │
+│  │  • int + float → float (promotion)                                     │  │
+│  │  • int = float → ERROR (narrowing)                                     │  │
+│  │  • float = int → OK (widening)                                         │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+                    Annotated AST + Symbol Table
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│       PHASE 4: INTERMEDIATE CODE GENERATION (icg.py)                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  Three-Address Code (TAC) Generation                                  │  │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │  │
+│  │  │  AST Node          →  TAC Instructions                          │  │  │
+│  │  │  ─────────────────────────────────────────────────────────────  │  │  │
+│  │  │  DeclStmt          →  ALLOC x int                               │  │  │
+│  │  │  BinaryOp(a, +, b) →  t0 = a + b                                │  │  │
+│  │  │  AssignStmt        →  x = t0                                    │  │  │
+│  │  │  IfStmt            →  IF_FALSE cond GOTO L1                     │  │  │
+│  │  │  WhileStmt         →  L0: ... GOTO L0 ... L1:                   │  │  │
+│  │  │  PrintStmt         →  PRINT x                                   │  │  │
+│  │  └─────────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                         │  │
+│  │  Temporary Variables: t0, t1, t2, ...                                  │  │
+│  │  Labels: L0, L1, L2, ...                                               │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+                    ALLOC x int
+                    t0 = 5 + 3
+                    x = t0
+                    PRINT x
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              PHASE 5: CODE OPTIMIZATION (optimizer.py)                      │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  Optimization Techniques:                                              │  │
+│  │                                                                         │  │
+│  │  1. Constant Folding                                                   │  │
+│  │     Before: t0 = 5 + 3                                                 │  │
+│  │     After:  t0 = 8                                                     │  │
+│  │                                                                         │  │
+│  │  2. Algebraic Simplification                                           │  │
+│  │     x * 1  →  x                                                        │  │
+│  │     x * 0  →  0                                                        │  │
+│  │     x + 0  →  x                                                        │  │
+│  │                                                                         │  │
+│  │  3. Dead Code Elimination                                              │  │
+│  │     Remove unused temporaries                                          │  │
+│  │     t1 = 10 * 2  (if t1 never used, remove)                           │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+                    ALLOC x int
+                    x = 8
+                    PRINT x
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│           PHASE 6: FINAL CODE GENERATION (code_generator.py)                │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  Pseudo-Assembly Generation (Stack-Based)                             │  │
+│  │                                                                         │  │
+│  │  DATA SECTION:                                                         │  │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │  │
+│  │  │  x: .space 4  ; int                                             │  │  │
+│  │  │  y: .space 4  ; float                                           │  │  │
+│  │  └─────────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                         │  │
+│  │  TEXT SECTION:                                                         │  │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │  │
+│  │  │  TAC: x = 8          →  LOAD_IMM 8                              │  │  │
+│  │  │                          STORE x                                │  │  │
+│  │  │                                                                 │  │  │
+│  │  │  TAC: x = a + b      →  LOAD a                                 │  │  │
+│  │  │                          ADD b                                  │  │  │
+│  │  │                          STORE x                                │  │  │
+│  │  │                                                                 │  │  │
+│  │  │  TAC: PRINT x        →  LOAD x                                 │  │  │
+│  │  │                          PRINT                                  │  │  │
+│  │  │                                                                 │  │  │
+│  │  │  TAC: GOTO L1        →  JMP L1                                 │  │  │
+│  │  │                                                                 │  │  │
+│  │  │  TAC: IF_FALSE x L1  →  LOAD x                                 │  │  │
+│  │  │                          JZ L1                                  │  │  │
+│  │  └─────────────────────────────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         OUTPUT FILES                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  program.tac       - Three-Address Code                               │  │
+│  │  program_opt.tac   - Optimized TAC                                    │  │
+│  │  program.asm       - Assembly Code                                    │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                         ERROR HANDLING (error_handler.py)
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ERROR DETECTION POINTS                             │
+│                                                                             │
+│  Phase 1 (Lexer):                                                          │
+│  ├─ Unknown characters (@, #, $)                                           │
+│  ├─ Malformed literals (3.14.15, 'ab')                                     │
+│  └─ Invalid tokens                                                         │
+│                                                                             │
+│  Phase 2 (Parser):                                                         │
+│  ├─ Missing semicolons                                                     │
+│  ├─ Unmatched braces                                                       │
+│  ├─ Invalid token sequences                                                │
+│  └─ Unexpected tokens                                                      │
+│                                                                             │
+│  Phase 3 (Semantic):                                                       │
+│  ├─ Undeclared variables                                                   │
+│  ├─ Type mismatches                                                        │
+│  ├─ Use before initialization                                              │
+│  ├─ Redeclaration in same scope                                            │
+│  └─ Invalid type conversions                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                         MODULE DEPENDENCIES
+================================================================================
+
+                            compiler.py (Main)
+                                  │
+                    ┌─────────────┼─────────────┐
+                    │             │             │
+                lexer.py      parser.py    error_handler.py
+                                  │
+                            ast_nodes.py
+                                  │
+                    ┌─────────────┼─────────────┐
+                    │             │             │
+          semantic_analyzer.py  icg.py    optimizer.py
+                    │                           │
+              symbol_table.py          code_generator.py
+
+================================================================================
+                         DATA FLOW DIAGRAM
+================================================================================
+
+Source Code (String)
+        │
+        ▼
+    [Lexer]
+        │
+        ▼
+Tokens (List[Token])
+        │
+        ▼
+    [Parser]
+        │
+        ▼
+AST (Program Node)
+        │
+        ├──────────────────┐
+        ▼                  ▼
+[Semantic Analyzer]  [Symbol Table]
+        │                  │
+        └────────┬─────────┘
+                 ▼
+    Annotated AST + Symbol Table
+                 │
+                 ▼
+              [ICG]
+                 │
+                 ▼
+    TAC (List[String])
+                 │
+                 ▼
+          [Optimizer]
+                 │
+                 ▼
+    Optimized TAC (List[String])
+                 │
+                 ▼
+        [Code Generator]
+                 │
+                 ▼
+    Assembly (List[String])
+                 │
+                 ▼
+         Output Files (.tac, .asm)
+
+================================================================================
+                         SYMBOL TABLE STRUCTURE
+================================================================================
+
+Symbol Table (Stack of Scopes)
+│
+├─ Scope 0 (Global)
+│  ├─ x: SymbolEntry(name='x', type='int', scope=0, line=1, init=True)
+│  └─ y: SymbolEntry(name='y', type='float', scope=0, line=2, init=True)
+│
+├─ Scope 1 (If Block)
+│  └─ temp: SymbolEntry(name='temp', type='int', scope=1, line=5, init=False)
+│
+└─ Scope 2 (Nested While)
+   └─ i: SymbolEntry(name='i', type='int', scope=2, line=8, init=True)
+
+Operations:
+• enter_scope() - Push new scope
+• exit_scope()  - Pop current scope
+• insert()      - Add symbol to current scope
+• lookup()      - Search from current to global scope
+
+================================================================================
+                         AST STRUCTURE EXAMPLE
+================================================================================
+
+Program
+│
+├─ DeclStmt(type='int', id='x', init=None)
+│
+├─ AssignStmt(id='x', expr=BinaryOp)
+│  └─ BinaryOp(left=Literal(5), op='+', right=Literal(3))
+│
+├─ IfStmt
+│  ├─ condition: BinaryOp(left=Identifier('x'), op='>', right=Literal(10))
+│  ├─ if_block: Block
+│  │  └─ PrintStmt(expr=Identifier('x'))
+│  ├─ elif_parts: []
+│  └─ else_block: None
+│
+└─ WhileStmt
+   ├─ condition: BinaryOp(left=Identifier('x'), op='<', right=Literal(100))
+   └─ block: Block
+      ├─ AssignStmt(id='x', expr=BinaryOp(...))
+      └─ PrintStmt(expr=Identifier('x'))
+
+================================================================================
+                         OPTIMIZATION EXAMPLES
+================================================================================
+
+1. CONSTANT FOLDING
+   Before:  t0 = 3 + 5
+            t1 = t0 * 2
+   After:   t0 = 8
+            t1 = 16
+
+2. ALGEBRAIC SIMPLIFICATION
+   Before:  t0 = x * 1
+            t1 = y + 0
+            t2 = z * 0
+   After:   t0 = x
+            t1 = y
+            t2 = 0
+
+3. DEAD CODE ELIMINATION
+   Before:  t0 = 5 + 3
+            t1 = 10 * 2    // t1 never used
+            x = t0
+   After:   t0 = 5 + 3
+            x = t0
+
+================================================================================
+                         TYPE COERCION MATRIX
+================================================================================
+
+Assignment Compatibility:
+
+        │ int │ float │ char │
+    ────┼─────┼───────┼──────┤
+    int │  ✓  │   ✗   │  ✓   │
+    ────┼─────┼───────┼──────┤
+  float │  ✓  │   ✓   │  ✓   │
+    ────┼─────┼───────┼──────┤
+   char │  ✗  │   ✗   │  ✓   │
+    ────┴─────┴───────┴──────┘
+
+Arithmetic Result Types:
+
+    int + int     → int
+    int + float   → float
+    float + float → float
+    char + int    → int (char promoted)
+
+================================================================================
+                         INSTRUCTION SET SUMMARY
+================================================================================
+
+ASSEMBLY INSTRUCTIONS:
+
+Data Section:
+    var: .space <size>  ; <type>
+
+Load/Store:
+    LOAD var            ; Load variable
+    LOAD_IMM value      ; Load immediate
+    STORE var           ; Store to variable
+
+Arithmetic:
+    ADD var             ; Add variable
+    ADD_IMM value       ; Add immediate
+    SUB var             ; Subtract
+    MUL var             ; Multiply
+    DIV var             ; Divide
+    MOD var             ; Modulo
+    NEG                 ; Negate
+
+Comparison:
+    CMP_EQ var          ; Compare equal
+    CMP_NE var          ; Compare not equal
+    CMP_LT var          ; Compare less than
+    CMP_GT var          ; Compare greater than
+    CMP_LE var          ; Compare less or equal
+    CMP_GE var          ; Compare greater or equal
+
+Logical:
+    AND var             ; Logical AND
+    OR var              ; Logical OR
+    NOT                 ; Logical NOT
+
+Control Flow:
+    JMP label           ; Unconditional jump
+    JZ label            ; Jump if zero
+
+I/O:
+    PRINT               ; Print top of stack
+    READ                ; Read into top of stack
+
+================================================================================

@@ -1,0 +1,73 @@
+FUNC_factorial:
+IF_FALSE t0 GOTO L0
+GOTO L0
+L0:
+ALLOC prev int
+t1 = n - 1
+prev = t1
+ALLOC result int
+t2 = RETVAL
+result = t2
+FUNC_fibonacci:
+IF_FALSE t4 GOTO L1
+GOTO L1
+L1:
+IF_FALSE t5 GOTO L2
+GOTO L2
+L2:
+ALLOC a int
+ALLOC b int
+t6 = n - 1
+a = t6
+t7 = n - 2
+b = t7
+t8 = RETVAL
+t9 = RETVAL
+FUNC_isEven:
+ALLOC remainder int
+t11 = x % 2
+remainder = t11
+IF_FALSE t12 GOTO L3
+GOTO L4
+L3:
+L4:
+FUNC_getGrade:
+IF_FALSE t13 GOTO L5
+GOTO L8
+L5:
+IF_FALSE t14 GOTO L6
+GOTO L8
+L6:
+IF_FALSE t15 GOTO L7
+GOTO L8
+L7:
+L8:
+MAIN:
+ALLOC num int
+ALLOC result int
+num = 5
+PRINT num
+t16 = RETVAL
+result = t16
+PRINT result
+t17 = RETVAL
+result = t17
+PRINT result
+t18 = RETVAL
+result = t18
+PRINT result
+t19 = RETVAL
+result = t19
+PRINT result
+ALLOC sum int
+sum = 0
+i = 1
+L9:
+IF_FALSE t20 GOTO L10
+t21 = sum + i
+sum = t21
+t22 = i + 1
+i = t22
+GOTO L9
+L10:
+PRINT sum

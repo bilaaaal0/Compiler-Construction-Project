@@ -1,0 +1,14 @@
+======================================================================
+PHASE 3 OUTPUT: SYMBOL TABLE
+======================================================================
+
+
+Scope Level 0:
+Name            Type            Line     Init     Offset  
+----------------------------------------------------------------------
+factorial       (int)->int      5        N/A      N/A     
+isEven          (int)->int      15       N/A      N/A     
+sum             int             25       True     16      
+product         int             26       True     20      
+count           int             27       True     24      
+result          int             48       True     36      

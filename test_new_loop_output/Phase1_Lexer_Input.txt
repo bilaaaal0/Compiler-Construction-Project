@@ -1,0 +1,20 @@
+// Test new loop syntax
+int sum;
+sum = 0;
+
+// New syntax: loop from ... to ... step ...
+loop from i = 1 to 10 step 1 {
+    sum = sum + i;
+}
+
+print sum;
+
+// Without step (defaults to 1)
+int product;
+product = 1;
+
+loop from j = 1 to 5 {
+    product = product * j;
+}
+
+print product;

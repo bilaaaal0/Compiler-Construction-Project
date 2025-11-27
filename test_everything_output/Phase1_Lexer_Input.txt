@@ -1,0 +1,62 @@
+// Ultimate test: Everything working together
+// Tests: variables, if-else, loops, functions, recursion
+
+// Recursive factorial
+func int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    int temp;
+    temp = n - 1;
+    return n * factorial(temp);
+}
+
+// Check if prime (with loop and if-else)
+func int isPrime(int n) {
+    if (n <= 1) {
+        return 0;
+    }
+    if (n == 2) {
+        return 1;
+    }
+    
+    int result;
+    result = 1;
+    
+    loop from i = 2 to n {
+        int remainder;
+        remainder = n % i;
+        if (remainder == 0) {
+            if (i != n) {
+                result = 0;
+            }
+        }
+    }
+    
+    return result;
+}
+
+// Main program
+print 1;
+
+// Test factorial
+int fact;
+fact = factorial(5);
+print fact;
+
+// Test prime check
+int check;
+check = isPrime(7);
+print check;
+
+// Test loop with if-else
+int sum;
+sum = 0;
+
+loop from i = 1 to 10 {
+    if (i > 5) {
+        sum = sum + i;
+    }
+}
+
+print sum;

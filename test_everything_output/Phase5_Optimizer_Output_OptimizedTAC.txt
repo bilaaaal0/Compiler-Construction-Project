@@ -1,0 +1,59 @@
+FUNC_factorial:
+IF_FALSE t0 GOTO L0
+GOTO L0
+L0:
+ALLOC temp int
+t1 = n - 1
+t2 = RETVAL
+FUNC_isPrime:
+IF_FALSE t4 GOTO L1
+GOTO L1
+L1:
+IF_FALSE t5 GOTO L2
+GOTO L2
+L2:
+ALLOC result int
+result = 1
+i = 2
+L3:
+IF_FALSE t6 GOTO L4
+ALLOC remainder int
+t7 = n % i
+remainder = t7
+IF_FALSE t8 GOTO L5
+IF_FALSE t9 GOTO L6
+result = 0
+GOTO L6
+L6:
+GOTO L5
+L5:
+t10 = i + 1
+i = t10
+GOTO L3
+L4:
+MAIN:
+PRINT 1
+ALLOC fact int
+t11 = RETVAL
+fact = t11
+PRINT fact
+ALLOC check int
+t12 = RETVAL
+check = t12
+PRINT check
+ALLOC sum int
+sum = 0
+i = 1
+L7:
+IF_FALSE t13 GOTO L8
+t14 = i > 5
+IF_FALSE t14 GOTO L9
+t15 = sum + i
+sum = t15
+GOTO L9
+L9:
+t16 = i + 1
+i = t16
+GOTO L7
+L8:
+PRINT sum

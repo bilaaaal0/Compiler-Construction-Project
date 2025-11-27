@@ -1,0 +1,3 @@
+# Annotated AST with type information
+# See Phase2_Parser_Output_AST.txt for structure
+# See Phase3_Semantic_Output_SymbolTable.txt for types

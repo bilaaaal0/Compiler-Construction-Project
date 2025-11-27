@@ -1,0 +1,85 @@
+// Comprehensive test: if-else, functions, recursion, loops
+// Expected outputs: 5, 120, 8, 1, 2, 15
+
+// Function 1: Recursive factorial
+func int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    int prev;
+    prev = n - 1;
+    int result;
+    result = factorial(prev);
+    return n * result;
+}
+
+// Function 2: Recursive fibonacci
+func int fibonacci(int n) {
+    if (n <= 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return 1;
+    }
+    int a;
+    int b;
+    a = n - 1;
+    b = n - 2;
+    return fibonacci(a) + fibonacci(b);
+}
+
+// Function 3: Check if even (with if-else)
+func int isEven(int x) {
+    int remainder;
+    remainder = x % 2;
+    if (remainder == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+// Function 4: Get grade (nested if-elif-else)
+func int getGrade(int score) {
+    if (score >= 90) {
+        return 1;
+    } elif (score >= 80) {
+        return 2;
+    } elif (score >= 70) {
+        return 3;
+    } else {
+        return 0;
+    }
+}
+
+// Main program
+int num;
+int result;
+
+// Test 1: Simple variable
+num = 5;
+print num;
+
+// Test 2: Factorial (recursion)
+result = factorial(5);
+print result;
+
+// Test 3: Fibonacci (recursion)
+result = fibonacci(6);
+print result;
+
+// Test 4: Even check (if-else in function)
+result = isEven(10);
+print result;
+
+// Test 5: Grade (nested if-elif-else)
+result = getGrade(85);
+print result;
+
+// Test 6: Loop with function call
+int sum;
+sum = 0;
+loop from i = 1 to 5 {
+    sum = sum + i;
+}
+print sum;

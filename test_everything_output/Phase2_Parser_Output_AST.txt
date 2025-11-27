@@ -1,0 +1,399 @@
+======================================================================
+PHASE 2 OUTPUT: ABSTRACT SYNTAX TREE (AST)
+======================================================================
+
+Program
+  functions:
+    FunctionDecl
+      return_type: int
+      name: factorial
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            IfStmt
+              condition:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: n
+                      line: 6
+                      var_type: None
+                  operator: <=
+                  right:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 6
+                  line: 6
+                  result_type: None
+              if_block:
+                Block
+                  statements:
+                    ReturnStmt
+                      expression:
+                        Literal
+                          value: 1
+                          lit_type: int
+                          line: 7
+                      line: 7
+              else_block: None
+              line: 6
+            DeclStmt
+              var_type: int
+              identifier: temp
+              init_value: None
+              line: 9
+            AssignStmt
+              identifier: temp
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: n
+                      line: 10
+                      var_type: None
+                  operator: -
+                  right:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 10
+                  line: 10
+                  result_type: None
+              line: 10
+            ReturnStmt
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: n
+                      line: 11
+                      var_type: None
+                  operator: *
+                  right:
+                    FunctionCall
+                      name: factorial
+                      arguments:
+                        Identifier
+                          name: temp
+                          line: 11
+                          var_type: None
+                      line: 11
+                      return_type: None
+                  line: 11
+                  result_type: None
+              line: 11
+      line: 5
+    FunctionDecl
+      return_type: int
+      name: isPrime
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            IfStmt
+              condition:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: n
+                      line: 16
+                      var_type: None
+                  operator: <=
+                  right:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 16
+                  line: 16
+                  result_type: None
+              if_block:
+                Block
+                  statements:
+                    ReturnStmt
+                      expression:
+                        Literal
+                          value: 0
+                          lit_type: int
+                          line: 17
+                      line: 17
+              else_block: None
+              line: 16
+            IfStmt
+              condition:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: n
+                      line: 19
+                      var_type: None
+                  operator: ==
+                  right:
+                    Literal
+                      value: 2
+                      lit_type: int
+                      line: 19
+                  line: 19
+                  result_type: None
+              if_block:
+                Block
+                  statements:
+                    ReturnStmt
+                      expression:
+                        Literal
+                          value: 1
+                          lit_type: int
+                          line: 20
+                      line: 20
+              else_block: None
+              line: 19
+            DeclStmt
+              var_type: int
+              identifier: result
+              init_value: None
+              line: 23
+            AssignStmt
+              identifier: result
+              expression:
+                Literal
+                  value: 1
+                  lit_type: int
+                  line: 24
+              line: 24
+            LoopStmt
+              var_name: i
+              start_expr:
+                Literal
+                  value: 2
+                  lit_type: int
+                  line: 26
+              end_expr:
+                Identifier
+                  name: n
+                  line: 26
+                  var_type: None
+              step_expr: None
+              block:
+                Block
+                  statements:
+                    DeclStmt
+                      var_type: int
+                      identifier: remainder
+                      init_value: None
+                      line: 27
+                    AssignStmt
+                      identifier: remainder
+                      expression:
+                        BinaryOp
+                          left:
+                            Identifier
+                              name: n
+                              line: 28
+                              var_type: None
+                          operator: %
+                          right:
+                            Identifier
+                              name: i
+                              line: 28
+                              var_type: None
+                          line: 28
+                          result_type: None
+                      line: 28
+                    IfStmt
+                      condition:
+                        BinaryOp
+                          left:
+                            Identifier
+                              name: remainder
+                              line: 29
+                              var_type: None
+                          operator: ==
+                          right:
+                            Literal
+                              value: 0
+                              lit_type: int
+                              line: 29
+                          line: 29
+                          result_type: None
+                      if_block:
+                        Block
+                          statements:
+                            IfStmt
+                              condition:
+                                BinaryOp
+                                  left:
+                                    Identifier
+                                      name: i
+                                      line: 30
+                                      var_type: None
+                                  operator: !=
+                                  right:
+                                    Identifier
+                                      name: n
+                                      line: 30
+                                      var_type: None
+                                  line: 30
+                                  result_type: None
+                              if_block:
+                                Block
+                                  statements:
+                                    AssignStmt
+                                      identifier: result
+                                      expression:
+                                        Literal
+                                          value: 0
+                                          lit_type: int
+                                          line: 31
+                                      line: 31
+                              else_block: None
+                              line: 30
+                      else_block: None
+                      line: 29
+              line: 26
+              use_existing_var: False
+            ReturnStmt
+              expression:
+                Identifier
+                  name: result
+                  line: 36
+                  var_type: None
+              line: 36
+      line: 15
+  statements:
+    PrintStmt
+      expression:
+        Literal
+          value: 1
+          lit_type: int
+          line: 40
+      line: 40
+    DeclStmt
+      var_type: int
+      identifier: fact
+      init_value: None
+      line: 43
+    AssignStmt
+      identifier: fact
+      expression:
+        FunctionCall
+          name: factorial
+          arguments:
+            Literal
+              value: 5
+              lit_type: int
+              line: 44
+          line: 44
+          return_type: None
+      line: 44
+    PrintStmt
+      expression:
+        Identifier
+          name: fact
+          line: 45
+          var_type: None
+      line: 45
+    DeclStmt
+      var_type: int
+      identifier: check
+      init_value: None
+      line: 48
+    AssignStmt
+      identifier: check
+      expression:
+        FunctionCall
+          name: isPrime
+          arguments:
+            Literal
+              value: 7
+              lit_type: int
+              line: 49
+          line: 49
+          return_type: None
+      line: 49
+    PrintStmt
+      expression:
+        Identifier
+          name: check
+          line: 50
+          var_type: None
+      line: 50
+    DeclStmt
+      var_type: int
+      identifier: sum
+      init_value: None
+      line: 53
+    AssignStmt
+      identifier: sum
+      expression:
+        Literal
+          value: 0
+          lit_type: int
+          line: 54
+      line: 54
+    LoopStmt
+      var_name: i
+      start_expr:
+        Literal
+          value: 1
+          lit_type: int
+          line: 56
+      end_expr:
+        Literal
+          value: 10
+          lit_type: int
+          line: 56
+      step_expr: None
+      block:
+        Block
+          statements:
+            IfStmt
+              condition:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: i
+                      line: 57
+                      var_type: None
+                  operator: >
+                  right:
+                    Literal
+                      value: 5
+                      lit_type: int
+                      line: 57
+                  line: 57
+                  result_type: None
+              if_block:
+                Block
+                  statements:
+                    AssignStmt
+                      identifier: sum
+                      expression:
+                        BinaryOp
+                          left:
+                            Identifier
+                              name: sum
+                              line: 58
+                              var_type: None
+                          operator: +
+                          right:
+                            Identifier
+                              name: i
+                              line: 58
+                              var_type: None
+                          line: 58
+                          result_type: None
+                      line: 58
+              else_block: None
+              line: 57
+      line: 56
+      use_existing_var: False
+    PrintStmt
+      expression:
+        Identifier
+          name: sum
+          line: 62
+          var_type: None
+      line: 62

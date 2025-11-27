@@ -1,0 +1,82 @@
+======================================================================
+PHASE 2 OUTPUT: ABSTRACT SYNTAX TREE (AST)
+======================================================================
+
+Program
+  functions:
+    FunctionDecl
+      return_type: int
+      name: Sum
+      parameters:
+        tuple
+        tuple
+      body:
+        Block
+          statements:
+            ReturnStmt
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: a
+                      line: 5
+                      var_type: None
+                  operator: +
+                  right:
+                    Identifier
+                      name: b
+                      line: 5
+                      var_type: None
+                  line: 5
+                  result_type: None
+              line: 5
+      line: 3
+  statements:
+    DeclStmt
+      var_type: int
+      identifier: a
+      init_value:
+        Literal
+          value: 3
+          lit_type: int
+          line: 9
+      line: 9
+    DeclStmt
+      var_type: int
+      identifier: b
+      init_value:
+        Literal
+          value: 4
+          lit_type: int
+          line: 10
+      line: 10
+    PrintStmt
+      expression:
+        Identifier
+          name: a
+          line: 12
+          var_type: None
+      line: 12
+    PrintStmt
+      expression:
+        Identifier
+          name: b
+          line: 13
+          var_type: None
+      line: 13
+    PrintStmt
+      expression:
+        FunctionCall
+          name: Sum
+          arguments:
+            Identifier
+              name: a
+              line: 15
+              var_type: None
+            Identifier
+              name: b
+              line: 15
+              var_type: None
+          line: 15
+          return_type: None
+      line: 15

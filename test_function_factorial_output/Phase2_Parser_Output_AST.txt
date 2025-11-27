@@ -1,0 +1,140 @@
+======================================================================
+PHASE 2 OUTPUT: ABSTRACT SYNTAX TREE (AST)
+======================================================================
+
+Program
+  functions:
+    FunctionDecl
+      return_type: int
+      name: factorial
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            IfStmt
+              condition:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: n
+                      line: 3
+                      var_type: None
+                  operator: <=
+                  right:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 3
+                  line: 3
+                  result_type: None
+              if_block:
+                Block
+                  statements:
+                    ReturnStmt
+                      expression:
+                        Literal
+                          value: 1
+                          lit_type: int
+                          line: 4
+                      line: 4
+              else_block: None
+              line: 3
+            DeclStmt
+              var_type: int
+              identifier: temp
+              init_value: None
+              line: 6
+            AssignStmt
+              identifier: temp
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: n
+                      line: 7
+                      var_type: None
+                  operator: -
+                  right:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 7
+                  line: 7
+                  result_type: None
+              line: 7
+            DeclStmt
+              var_type: int
+              identifier: result
+              init_value: None
+              line: 8
+            AssignStmt
+              identifier: result
+              expression:
+                FunctionCall
+                  name: factorial
+                  arguments:
+                    Identifier
+                      name: temp
+                      line: 9
+                      var_type: None
+                  line: 9
+                  return_type: None
+              line: 9
+            ReturnStmt
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: n
+                      line: 10
+                      var_type: None
+                  operator: *
+                  right:
+                    Identifier
+                      name: result
+                      line: 10
+                      var_type: None
+                  line: 10
+                  result_type: None
+              line: 10
+      line: 2
+  statements:
+    DeclStmt
+      var_type: int
+      identifier: num
+      init_value: None
+      line: 13
+    DeclStmt
+      var_type: int
+      identifier: fact
+      init_value: None
+      line: 14
+    AssignStmt
+      identifier: num
+      expression:
+        Literal
+          value: 5
+          lit_type: int
+          line: 16
+      line: 16
+    AssignStmt
+      identifier: fact
+      expression:
+        FunctionCall
+          name: factorial
+          arguments:
+            Identifier
+              name: num
+              line: 17
+              var_type: None
+          line: 17
+          return_type: None
+      line: 17
+    PrintStmt
+      expression:
+        Identifier
+          name: fact
+          line: 18
+          var_type: None
+      line: 18

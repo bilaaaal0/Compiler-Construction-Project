@@ -1,0 +1,5 @@
+MAIN:
+ALLOC x int
+x = 100
+PRINT x
+END_MAIN

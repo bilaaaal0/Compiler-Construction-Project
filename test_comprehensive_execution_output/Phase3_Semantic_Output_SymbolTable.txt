@@ -1,0 +1,15 @@
+======================================================================
+PHASE 3 OUTPUT: SYMBOL TABLE
+======================================================================
+
+
+Scope Level 0:
+Name            Type            Line     Init     Offset  
+----------------------------------------------------------------------
+factorial       (int)->int      5        N/A      N/A     
+fibonacci       (int)->int      17       N/A      N/A     
+isEven          (int)->int      32       N/A      N/A     
+getGrade        (int)->int      43       N/A      N/A     
+num             int             56       True     36      
+result          int             57       True     40      
+sum             int             80       True     44      

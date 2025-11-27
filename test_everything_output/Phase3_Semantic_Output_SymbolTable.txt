@@ -1,0 +1,13 @@
+======================================================================
+PHASE 3 OUTPUT: SYMBOL TABLE
+======================================================================
+
+
+Scope Level 0:
+Name            Type            Line     Init     Offset  
+----------------------------------------------------------------------
+factorial       (int)->int      5        N/A      N/A     
+isPrime         (int)->int      15       N/A      N/A     
+fact            int             43       True     24      
+check           int             48       True     28      
+sum             int             53       True     32      
