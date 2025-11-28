@@ -1,0 +1,34 @@
+MAIN:
+ALLOC x int
+x = 10
+ALLOC y int
+y = 20
+PRINT x
+PRINT y
+x = 100
+ALLOC z int
+z = 30
+PRINT x
+PRINT z
+x = 200
+PRINT x
+PRINT x
+PRINT x
+IF_FALSE t0 GOTO L0
+ALLOC a int
+a = 50
+PRINT a
+GOTO L0
+L0:
+ALLOC i int
+i = 0
+i = 0
+L1:
+IF_FALSE t1 GOTO L2
+ALLOC b int
+b = 99
+PRINT b
+t2 = i + 1
+i = t2
+GOTO L1
+L2:

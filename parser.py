@@ -163,9 +163,16 @@ class Parser:
         line = self.current_token.line
         self.advance()  # consume 'print'
         
-        expr = self.parse_expr()
+        # Parse expression list (comma-separated)
+        expressions = []
+        expressions.append(self.parse_expr())
+        
+        while self.current_token.type == TokenType.COMMA:
+            self.advance()  # consume ','
+            expressions.append(self.parse_expr())
+        
         self.expect(TokenType.SEMICOLON)
-        return PrintStmt(expr, line)
+        return PrintStmt(expressions, line)
     
     def parse_input_stmt(self):
         line = self.current_token.line
@@ -318,8 +325,8 @@ class Parser:
         self.advance()  # consume 'func'
         
         # Return type
-        if self.current_token.type not in [TokenType.INT, TokenType.FLOAT, TokenType.CHAR]:
-            self.error("Expected return type")
+        if self.current_token.type not in [TokenType.INT, TokenType.FLOAT, TokenType.CHAR, TokenType.VOID]:
+            self.error("Expected return type (int, float, char, or void)")
             return None
         return_type = self.current_token.value
         self.advance()
@@ -421,10 +428,21 @@ class Parser:
         return ReturnStmt(expression, line)
 
     def parse_loop_stmt(self):
-        """Parse loop from ... to ... step ... statement"""
+        """Parse loop statement - either range-based or conditional"""
         line = self.current_token.line
         self.advance()  # consume 'loop'
         
+        # Check if it's a conditional loop: loop (condition) {}
+        if self.current_token.type == TokenType.LPAREN:
+            self.advance()  # consume '('
+            condition = self.parse_condition()
+            if not self.expect(TokenType.RPAREN):
+                return None
+            block = self.parse_block()
+            # Return a conditional loop (while-style)
+            return ConditionalLoopStmt(condition, block, line)
+        
+        # Otherwise, it's a range-based loop: loop from ... to ...
         # Expect 'from'
         if not self.expect(TokenType.FROM):
             return None

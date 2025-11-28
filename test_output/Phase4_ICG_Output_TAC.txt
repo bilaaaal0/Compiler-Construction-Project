@@ -1,20 +1,14 @@
-FUNC_Sum:
-PARAM a 0
-PARAM b 1
-t0 = a + b
-RETURN t0
-RETURN 0
-END_FUNC_Sum
 MAIN:
-ALLOC a int
-a = 3
-ALLOC b int
-b = 4
-PRINT a
-PRINT b
-PUSH b
-PUSH a
-CALL FUNC_Sum 2
-t1 = RETVAL
-PRINT t1
+ALLOC i int
+i = 0
+L0:
+t0 = i < 10
+IF_FALSE t0 GOTO L1
+ENTER_SCOPE
+PRINT i
+t1 = i + 1
+i = t1
+EXIT_SCOPE
+GOTO L0
+L1:
 END_MAIN

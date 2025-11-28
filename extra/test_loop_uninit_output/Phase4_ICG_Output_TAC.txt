@@ -1,0 +1,13 @@
+MAIN:
+ALLOC i int
+L0:
+t0 = i <= 5
+IF_FALSE t0 GOTO L1
+ENTER_SCOPE
+PRINT i
+EXIT_SCOPE
+t1 = i + 1
+i = t1
+GOTO L0
+L1:
+END_MAIN

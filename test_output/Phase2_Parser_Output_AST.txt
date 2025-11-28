@@ -3,80 +3,58 @@ PHASE 2 OUTPUT: ABSTRACT SYNTAX TREE (AST)
 ======================================================================
 
 Program
-  functions:
-    FunctionDecl
-      return_type: int
-      name: Sum
-      parameters:
-        tuple
-        tuple
-      body:
+  statements:
+    DeclStmt
+      var_type: int
+      identifier: i
+      init_value:
+        Literal
+          value: 0
+          lit_type: int
+          line: 4
+      line: 4
+    ConditionalLoopStmt
+      condition:
+        BinaryOp
+          left:
+            Identifier
+              name: i
+              line: 6
+              var_type: None
+          operator: <
+          right:
+            Literal
+              value: 10
+              lit_type: int
+              line: 6
+          line: 6
+          result_type: None
+      block:
         Block
           statements:
-            ReturnStmt
+            PrintStmt
+              expressions:
+                Identifier
+                  name: i
+                  line: 8
+                  var_type: None
+              line: 8
+            AssignStmt
+              identifier: i
               expression:
                 BinaryOp
                   left:
                     Identifier
-                      name: a
-                      line: 5
+                      name: i
+                      line: 9
                       var_type: None
                   operator: +
                   right:
-                    Identifier
-                      name: b
-                      line: 5
-                      var_type: None
-                  line: 5
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 9
+                  line: 9
                   result_type: None
-              line: 5
-      line: 3
-  statements:
-    DeclStmt
-      var_type: int
-      identifier: a
-      init_value:
-        Literal
-          value: 3
-          lit_type: int
-          line: 9
-      line: 9
-    DeclStmt
-      var_type: int
-      identifier: b
-      init_value:
-        Literal
-          value: 4
-          lit_type: int
-          line: 10
-      line: 10
-    PrintStmt
-      expression:
-        Identifier
-          name: a
-          line: 12
-          var_type: None
-      line: 12
-    PrintStmt
-      expression:
-        Identifier
-          name: b
-          line: 13
-          var_type: None
-      line: 13
-    PrintStmt
-      expression:
-        FunctionCall
-          name: Sum
-          arguments:
-            Identifier
-              name: a
-              line: 15
-              var_type: None
-            Identifier
-              name: b
-              line: 15
-              var_type: None
-          line: 15
-          return_type: None
-      line: 15
+              line: 9
+      line: 6

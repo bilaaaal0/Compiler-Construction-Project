@@ -1,0 +1,29 @@
+MAIN:
+ALLOC a int
+a = 3
+t0 = a == 3
+t1 = a == 2
+t2 = t0 || t1
+IF_FALSE t2 GOTO L0
+ENTER_SCOPE
+PRINT a
+ALLOC b int
+b = 6
+t3 = b == 6
+t4 = a == 3
+t5 = t3 && t4
+IF_FALSE t5 GOTO L1
+ENTER_SCOPE
+PRINT b
+EXIT_SCOPE
+GOTO L2
+L1:
+ENTER_SCOPE
+t6 = a + b
+PRINT t6
+EXIT_SCOPE
+L2:
+EXIT_SCOPE
+GOTO L0
+L0:
+END_MAIN

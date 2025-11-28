@@ -1,0 +1,42 @@
+// Comprehensive initialization test
+
+// 1. Declaration without initialization, then assign
+int x;
+x = 10;
+print x;  // Should print 10
+
+// 2. Declaration with initialization
+int y = 20;
+print y;  // Should print 20
+
+// 3. Multiple declarations, then assign
+int a;
+int b;
+a = 5;
+b = a + 3;
+print b;  // Should print 8
+
+// 4. Loop with pre-initialized variable
+int i;
+i = 0;
+loop from i to 2 {
+    print i;  // Should print 0, 1, 2
+}
+
+// 5. Loop with declaration and initialization
+int j = 5;
+loop from j to 7 {
+    print j;  // Should print 5, 6, 7
+}
+
+// 6. Loop with inline initialization
+loop from k = 10 to 12 {
+    print k;  // Should print 10, 11, 12
+}
+
+// 7. Conditional loop
+int m = 0;
+loop (m < 3) {
+    print m;  // Should print 0, 1, 2
+    m = m + 1;
+}

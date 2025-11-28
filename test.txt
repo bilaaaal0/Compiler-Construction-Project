@@ -1,15 +1,10 @@
 
 
-func int Sum(int a, int b){
 
-return a+b;
+int i = 0;
+
+loop(i<10)
+{
+    print i;
+    i = i + 1;
 }
-
-
-int a = 3;
-int b= 4;
-
-print a;
-print b;
-
-print Sum(a,b);

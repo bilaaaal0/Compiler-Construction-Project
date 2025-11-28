@@ -6,6 +6,4 @@ PHASE 3 OUTPUT: SYMBOL TABLE
 Scope Level 0:
 Name            Type            Line     Init     Offset  
 ----------------------------------------------------------------------
-Sum             (int, int)->int 3        N/A      N/A     
-a               int             9        True     8       
-b               int             10       True     12      
+i               int             4        True     0       

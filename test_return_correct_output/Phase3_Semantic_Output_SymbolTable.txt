@@ -1,0 +1,14 @@
+======================================================================
+PHASE 3 OUTPUT: SYMBOL TABLE
+======================================================================
+
+
+Scope Level 0:
+Name            Type            Line     Init     Offset  
+----------------------------------------------------------------------
+add             (int, int)->int 4        N/A      N/A     
+printSum        (int, int)->void 9        N/A      N/A     
+printValue      (int)->void     15       N/A      N/A     
+max             (int, int)->int 21       N/A      N/A     
+x               int             30       True     32      
+m               int             36       True     36      

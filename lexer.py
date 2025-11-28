@@ -11,6 +11,7 @@ class TokenType(Enum):
     INT = auto()
     FLOAT = auto()
     CHAR = auto()
+    VOID = auto()
     IF = auto()
     ELIF = auto()
     ELSE = auto()
@@ -81,6 +82,7 @@ class Lexer:
             'int': TokenType.INT,
             'float': TokenType.FLOAT,
             'char': TokenType.CHAR,
+            'void': TokenType.VOID,
             'if': TokenType.IF,
             'elif': TokenType.ELIF,
             'else': TokenType.ELSE,

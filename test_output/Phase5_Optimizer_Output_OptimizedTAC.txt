@@ -1,10 +1,11 @@
-FUNC_Sum:
 MAIN:
-ALLOC a int
-a = 3
-ALLOC b int
-b = 4
-PRINT a
-PRINT b
-t1 = RETVAL
-PRINT t1
+ALLOC i int
+i = 0
+L0:
+t0 = i < 10
+IF_FALSE t0 GOTO L1
+PRINT i
+t1 = i + 1
+i = t1
+GOTO L0
+L1:

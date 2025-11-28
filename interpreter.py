@@ -10,6 +10,7 @@ class TACInterpreter:
         self.functions = {}
         self.arg_stack = []  # For function arguments
         self.call_stack = []  # For function call frames
+        self.scope_stack = []  # For block scope management
         self.pc = 0  # Program counter
         self.instructions = []
         self.output = []
@@ -71,10 +72,44 @@ class TACInterpreter:
     def execute_instruction(self, instruction):
         """Execute a single TAC instruction"""
         
+        # ENTER_SCOPE - save current variable state
+        if instruction.startswith('ENTER_SCOPE'):
+            # Save both the variable names AND their values
+            # Also track which variables are allocated in this scope
+            self.scope_stack.append({
+                'var_names': set(self.variables.keys()),
+                'var_values': dict(self.variables),
+                'allocated_in_scope': set()  # Track variables ALLOCated in this scope
+            })
+        
+        # EXIT_SCOPE - restore variables from before scope
+        elif instruction.startswith('EXIT_SCOPE'):
+            if self.scope_stack:
+                scope_info = self.scope_stack.pop()
+                old_var_names = scope_info['var_names']
+                old_var_values = scope_info['var_values']
+                allocated_in_scope = scope_info['allocated_in_scope']
+                
+                # Remove or restore variables based on whether they were allocated in this scope
+                current_var_names = list(self.variables.keys())
+                for var_name in current_var_names:
+                    if var_name not in old_var_names:
+                        # Variable was declared ONLY in this scope, remove it
+                        del self.variables[var_name]
+                    elif var_name in allocated_in_scope:
+                        # Variable was re-declared (shadowed) in this scope, restore old value
+                        self.variables[var_name] = old_var_values[var_name]
+                    # else: variable existed before and was just modified, keep new value
+        
         # ALLOC variable type
-        if instruction.startswith('ALLOC'):
+        elif instruction.startswith('ALLOC'):
             parts = instruction.split()
             var_name = parts[1]
+            
+            # Track if this is an allocation in a scope
+            if self.scope_stack:
+                self.scope_stack[-1]['allocated_in_scope'].add(var_name)
+            
             self.variables[var_name] = 0  # Initialize to 0
         
         # PRINT variable
@@ -203,6 +238,21 @@ class TACInterpreter:
         expr = expr.strip()
         
         # Binary operations - check in order of precedence
+        # Logical operators (lowest precedence)
+        if '||' in expr:
+            parts = expr.split('||', 1)
+            if len(parts) == 2:
+                left = self.get_value(parts[0].strip())
+                right = self.get_value(parts[1].strip())
+                return 1 if (left or right) else 0
+        
+        if '&&' in expr:
+            parts = expr.split('&&', 1)
+            if len(parts) == 2:
+                left = self.get_value(parts[0].strip())
+                right = self.get_value(parts[1].strip())
+                return 1 if (left and right) else 0
+        
         # Comparison operators (check these first as they contain other operators)
         for op in ['<=', '>=', '==', '!=']:
             if op in expr:

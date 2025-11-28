@@ -1,0 +1,37 @@
+// Test correct return statements
+
+// OK: int function with return
+func int add(int a, int b) {
+    return a + b;
+}
+
+// OK: void function without return
+func void printSum(int a, int b) {
+    int sum = a + b;
+    print sum;
+}
+
+// OK: void function with empty return
+func void printValue(int x) {
+    print x;
+    return;
+}
+
+// OK: int function with return in all paths
+func int max(int a, int b) {
+    if (a > b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+// Main program
+int x = add(5, 10);
+print x;
+
+printSum(3, 7);
+printValue(42);
+
+int m = max(15, 20);
+print m;

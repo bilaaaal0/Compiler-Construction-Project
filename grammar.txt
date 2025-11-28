@@ -4,7 +4,7 @@ MINI COMPILER - FORMAL GRAMMAR SPECIFICATION (WITH FUNCTIONS)
 
 LEXICAL TOKENS:
 --------------
-Keywords: int, float, char, if, elif, else, loop, from, to, step, print, input, return, func
+Keywords: int, float, char, void, if, elif, else, loop, from, to, step, print, input, return, func
 Operators: +, -, *, /, %, =, ==, !=, <, >, <=, >=, &&, ||, !
 Delimiters: (, ), {, }, ;, ,
 Literals: INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL
@@ -42,12 +42,13 @@ Stmt → DeclStmt
 
 Block → '{' StmtList '}'
 
-DeclStmt → Type IDENTIFIER ';'
-         | Type IDENTIFIER '=' Expr ';'
+DeclStmt → Type IDENTIFIER ';'                    // Declaration without initialization
+         | Type IDENTIFIER '=' Expr ';'            // Declaration with initialization
 
 Type → 'int'
      | 'float'
      | 'char'
+     | 'void'
 
 AssignStmt → IDENTIFIER '=' Expr ';'
 
@@ -63,8 +64,14 @@ LoopStmt → 'loop' 'from' IDENTIFIER '=' Expr 'to' Expr 'step' Expr Block
          | 'loop' 'from' IDENTIFIER '=' Expr 'to' Expr Block
          | 'loop' 'from' IDENTIFIER 'to' Expr 'step' Expr Block
          | 'loop' 'from' IDENTIFIER 'to' Expr Block
+         | 'loop' '(' Condition ')' Block
 
-PrintStmt → 'print' Expr ';'
+PrintStmt → 'print' ExprList ';'
+
+ExprList → Expr ExprListTail
+
+ExprListTail → ',' Expr ExprListTail
+             | ε
 
 InputStmt → 'input' IDENTIFIER ';'
 
@@ -110,6 +117,69 @@ RelOp → '==' | '!=' | '<' | '>' | '<=' | '>='
 LogicOp → '&&' | '||'
 
 ================================================================================
+VARIABLE INITIALIZATION:
+-----------------------
+1. Variables can be declared without initialization: int x;
+2. Variables can be initialized later: x = 5;
+3. Using uninitialized variables causes compilation error
+4. Loop variables must be initialized before use in 'loop from i to n'
+
+INITIALIZATION RULES:
+- Declaration only: int x;           → x is uninitialized
+- Declaration + init: int x = 5;     → x is initialized
+- Later assignment: x = 10;          → x becomes initialized
+- Using uninitialized: print x;      → ERROR if x not initialized
+- Loop requirement: loop from i to n → i must be initialized before loop
+
+EXAMPLES:
+int x;              // Declared but not initialized
+x = 10;             // Now initialized
+print x;            // OK: prints 10
+
+int y;
+print y;            // ERROR: y not initialized
+
+int i;
+i = 0;
+loop from i to 5 {  // OK: i is initialized
+    print i;
+}
+
+int j;
+loop from j to 5 {  // ERROR: j not initialized
+    print j;
+}
+
+================================================================================
+SCOPE MANAGEMENT:
+----------------
+1. Block Scope: Each { } creates a new scope
+2. Variable Shadowing: Variables declared in inner scope shadow outer scope
+3. Variable Lifetime: Variables declared in a scope are destroyed on scope exit
+4. Variable Modification: Assignment to existing variable modifies outer scope
+5. Scope Hierarchy: Global → Function → Block → Nested Block
+
+SCOPE RULES:
+- Declaration (int x = 5;) in scope → creates NEW local variable
+- Assignment (x = 5;) in scope → modifies existing variable from outer scope
+- On scope exit: local variables removed, outer variables retain modifications
+
+EXAMPLE:
+int x = 10;        // Global scope
+{
+    x = 20;        // Modifies global x
+    int y = 30;    // Local to this block
+    {
+        int x = 40;  // Shadows global x
+        print x;     // Prints 40
+    }
+    print x;       // Prints 20 (global x was modified)
+    print y;       // Prints 30
+}
+print x;           // Prints 20
+// print y;        // ERROR: y not in scope
+
+================================================================================
 FUNCTION SEMANTICS:
 ------------------
 1. Functions must be declared before use
@@ -118,8 +188,19 @@ FUNCTION SEMANTICS:
 4. Recursion is supported
 5. Functions have their own scope
 6. Parameters are passed by value
+7. Void functions do not return a value
 
-EXAMPLE FUNCTION:
+FUNCTION TYPES:
+- int/float/char functions: Must return a value of that type
+- void functions: Do not return a value (or use 'return;' without value)
+
+RETURN STATEMENT REQUIREMENTS:
+- Non-void functions (int, float, char) MUST have at least one return statement
+- Void functions may have 'return;' (without value) or no return statement
+- Return statement must match function's return type
+
+EXAMPLE FUNCTIONS:
+// Function with return value
 func int factorial(int n) {
     if (n <= 1) {
         return 1;
@@ -130,6 +211,37 @@ func int factorial(int n) {
 int result;
 result = factorial(5);
 print result;
+
+// Void function (no return value)
+func void printMessage(int x) {
+    print x;
+    print x + 1;
+}
+
+printMessage(10);  // Prints 10, 11
+
+PRINT STATEMENT EXAMPLES:
+// Print single value
+print x;
+
+// Print multiple values (comma-separated)
+print x, y, z;
+
+// Print expressions
+print x + y, x * 2, z - 5;
+
+LOOP EXAMPLES:
+// Range-based loop (for-style)
+loop from i = 0 to 10 step 2 {
+    print i;  // Prints 0, 2, 4, 6, 8, 10
+}
+
+// Conditional loop (while-style)
+int x = 0;
+loop (x < 10) {
+    print x;
+    x = x + 1;  // Prints 0 to 9
+}
 
 ================================================================================
 TYPE COERCION RULES:

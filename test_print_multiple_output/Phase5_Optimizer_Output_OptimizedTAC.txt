@@ -1,0 +1,35 @@
+MAIN:
+ALLOC x int
+x = 10
+ALLOC y int
+y = 20
+ALLOC z int
+z = 30
+PRINT x
+PRINT x
+PRINT y
+PRINT z
+t0 = x + y
+PRINT t0
+t1 = x * 2
+PRINT t1
+t2 = z - 5
+PRINT t2
+PRINT x
+t3 = x + y
+PRINT t3
+PRINT y
+t4 = y * z
+PRINT t4
+i = 0
+L0:
+IF_FALSE t5 GOTO L1
+PRINT i
+t6 = i * 2
+PRINT t6
+t7 = i + 10
+PRINT t7
+t8 = i + 1
+i = t8
+GOTO L0
+L1:

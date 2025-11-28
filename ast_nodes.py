@@ -41,9 +41,15 @@ class LoopStmt(ASTNode):
         self.line = line
         self.use_existing_var = use_existing_var  # True if variable already declared
 
+class ConditionalLoopStmt(ASTNode):
+    def __init__(self, condition, block, line=0):
+        self.condition = condition
+        self.block = block
+        self.line = line
+
 class PrintStmt(ASTNode):
-    def __init__(self, expression, line=0):
-        self.expression = expression
+    def __init__(self, expressions, line=0):
+        self.expressions = expressions  # List of expressions
         self.line = line
 
 class InputStmt(ASTNode):

@@ -1,0 +1,206 @@
+======================================================================
+PHASE 2 OUTPUT: ABSTRACT SYNTAX TREE (AST)
+======================================================================
+
+Program
+  functions:
+    FunctionDecl
+      return_type: int
+      name: noReturn
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            PrintStmt
+              expressions:
+                Identifier
+                  name: x
+                  line: 5
+                  var_type: None
+              line: 5
+      line: 4
+    FunctionDecl
+      return_type: int
+      name: withReturn
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            ReturnStmt
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: x
+                      line: 10
+                      var_type: None
+                  operator: +
+                  right:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 10
+                  line: 10
+                  result_type: None
+              line: 10
+      line: 9
+    FunctionDecl
+      return_type: void
+      name: voidFunc
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            PrintStmt
+              expressions:
+                Identifier
+                  name: x
+                  line: 15
+                  var_type: None
+              line: 15
+      line: 14
+    FunctionDecl
+      return_type: void
+      name: voidFunc2
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            PrintStmt
+              expressions:
+                Identifier
+                  name: x
+                  line: 20
+                  var_type: None
+              line: 20
+            ReturnStmt
+              expression: None
+              line: 21
+      line: 19
+    FunctionDecl
+      return_type: int
+      name: conditionalReturn
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            IfStmt
+              condition:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: x
+                      line: 26
+                      var_type: None
+                  operator: >
+                  right:
+                    Literal
+                      value: 0
+                      lit_type: int
+                      line: 26
+                  line: 26
+                  result_type: None
+              if_block:
+                Block
+                  statements:
+                    ReturnStmt
+                      expression:
+                        Identifier
+                          name: x
+                          line: 27
+                          var_type: None
+                      line: 27
+              else_block: None
+              line: 26
+      line: 25
+    FunctionDecl
+      return_type: int
+      name: allPathsReturn
+      parameters:
+        tuple
+      body:
+        Block
+          statements:
+            IfStmt
+              condition:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: x
+                      line: 34
+                      var_type: None
+                  operator: >
+                  right:
+                    Literal
+                      value: 0
+                      lit_type: int
+                      line: 34
+                  line: 34
+                  result_type: None
+              if_block:
+                Block
+                  statements:
+                    ReturnStmt
+                      expression:
+                        Identifier
+                          name: x
+                          line: 35
+                          var_type: None
+                      line: 35
+              else_block:
+                Block
+                  statements:
+                    ReturnStmt
+                      expression:
+                        Literal
+                          value: 0
+                          lit_type: int
+                          line: 37
+                      line: 37
+              line: 34
+      line: 33
+  statements:
+    DeclStmt
+      var_type: int
+      identifier: a
+      init_value:
+        FunctionCall
+          name: withReturn
+          arguments:
+            Literal
+              value: 5
+              lit_type: int
+              line: 41
+          line: 41
+          return_type: None
+      line: 41
+    PrintStmt
+      expressions:
+        Identifier
+          name: a
+          line: 42
+          var_type: None
+      line: 42
+    FunctionCall
+      name: voidFunc
+      arguments:
+        Literal
+          value: 10
+          lit_type: int
+          line: 43
+      line: 43
+      return_type: None
+    FunctionCall
+      name: voidFunc2
+      arguments:
+        Literal
+          value: 20
+          lit_type: int
+          line: 44
+      line: 44
+      return_type: None

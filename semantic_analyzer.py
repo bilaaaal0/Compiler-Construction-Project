@@ -14,6 +14,29 @@ class SemanticAnalyzer:
     def error(self, message, line=0):
         self.errors.append(f"Semantic Error at line {line}: {message}")
     
+    def has_return_statement(self, node):
+        """Check if a block or statement contains a return statement"""
+        if isinstance(node, ReturnStmt):
+            return True
+        elif isinstance(node, Block):
+            for stmt in node.statements:
+                if self.has_return_statement(stmt):
+                    return True
+        elif isinstance(node, IfStmt):
+            # Check if all branches have return
+            if self.has_return_statement(node.if_block):
+                return True
+            for _, elif_block in node.elif_parts:
+                if self.has_return_statement(elif_block):
+                    return True
+            if node.else_block and self.has_return_statement(node.else_block):
+                return True
+        elif isinstance(node, LoopStmt) or isinstance(node, ConditionalLoopStmt):
+            # Loops might have return statements
+            if hasattr(node, 'block') and self.has_return_statement(node.block):
+                return True
+        return False
+    
     def analyze(self, ast):
         self.visit(ast)
         return self.symbol_table, self.errors
@@ -118,7 +141,7 @@ class SemanticAnalyzer:
         
         # Check if using existing variable or creating new one
         if node.use_existing_var:
-            # Variable must already exist
+            # Variable must already exist AND be initialized
             entry = self.symbol_table.lookup(node.var_name)
             if not entry:
                 self.error(f"Loop variable '{node.var_name}' not declared", node.line)
@@ -126,8 +149,10 @@ class SemanticAnalyzer:
                 # Check if it's numeric type
                 if entry.var_type not in ['int', 'float']:
                     self.error(f"Loop variable must be numeric, got {entry.var_type}", node.line)
-                # Mark as initialized (loop will initialize it)
-                self.symbol_table.update_initialized(node.var_name)
+                # Check if variable is initialized
+                if not entry.initialized:
+                    self.error(f"Loop variable '{node.var_name}' used before initialization", node.line)
+                # Variable is already initialized, no need to mark again
         else:
             # Check if loop variable exists or create it
             entry = self.symbol_table.lookup(node.var_name)
@@ -164,8 +189,22 @@ class SemanticAnalyzer:
         
         self.symbol_table.exit_scope()
     
+    def visit_ConditionalLoopStmt(self, node):
+        """Analyze conditional loop (while-style)"""
+        self.symbol_table.enter_scope()
+        
+        # Check condition
+        self.visit(node.condition)
+        
+        # Visit loop body
+        self.visit(node.block)
+        
+        self.symbol_table.exit_scope()
+    
     def visit_PrintStmt(self, node):
-        self.visit(node.expression)
+        # Visit all expressions in the print statement
+        for expr in node.expressions:
+            self.visit(expr)
     
     def visit_InputStmt(self, node):
         entry = self.symbol_table.lookup(node.identifier)
@@ -175,8 +214,12 @@ class SemanticAnalyzer:
             self.symbol_table.update_initialized(node.identifier)
     
     def visit_Block(self, node):
+        # Enter new scope for block
+        self.symbol_table.enter_scope()
         for stmt in node.statements:
             self.visit(stmt)
+        # Exit block scope
+        self.symbol_table.exit_scope()
     
     def visit_BinaryOp(self, node):
         left_type = self.visit(node.left)
@@ -261,6 +304,14 @@ class SemanticAnalyzer:
         # Analyze function body
         self.visit(node.body)
         
+        # Check if non-void function has return statement
+        if node.return_type != 'void':
+            if not self.has_return_statement(node.body):
+                self.error(
+                    f"Function '{node.name}' with return type '{node.return_type}' must have a return statement",
+                    node.line
+                )
+        
         # Exit function scope
         self.symbol_table.current_function = None
         self.symbol_table.exit_scope()
@@ -313,14 +364,20 @@ class SemanticAnalyzer:
         # Check return type
         if node.expression:
             return_type = self.visit(node.expression)
-            if not self.is_type_compatible(func_entry.return_type, return_type):
+            # Void functions should not return a value
+            if func_entry.return_type == 'void':
+                self.error(
+                    f"Void function '{func_entry.name}' should not return a value",
+                    node.line
+                )
+            elif not self.is_type_compatible(func_entry.return_type, return_type):
                 self.error(
                     f"Return type mismatch: expected {func_entry.return_type}, got {return_type}",
                     node.line
                 )
         else:
-            # Empty return - should only be in void functions (but we don't have void yet)
-            if func_entry.return_type != 'int':  # Assuming int can be returned as 0
+            # Empty return - should only be in void functions
+            if func_entry.return_type != 'void':
                 self.error(
                     f"Function '{func_entry.name}' must return a value of type {func_entry.return_type}",
                     node.line

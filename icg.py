@@ -130,16 +130,42 @@ class ICG:
         # End
         self.emit(f"{end_label}:")
     
+    def visit_ConditionalLoopStmt(self, node):
+        """Generate code for conditional loop (while-style)"""
+        start_label = self.new_label()
+        end_label = self.new_label()
+        
+        # Loop start
+        self.emit(f"{start_label}:")
+        
+        # Evaluate condition
+        cond_result = self.visit(node.condition)
+        self.emit(f"IF_FALSE {cond_result} GOTO {end_label}")
+        
+        # Loop body
+        self.visit(node.block)
+        
+        # Jump back to start
+        self.emit(f"GOTO {start_label}")
+        
+        # End
+        self.emit(f"{end_label}:")
+    
     def visit_PrintStmt(self, node):
-        result = self.visit(node.expression)
-        self.emit(f"PRINT {result}")
+        # Generate PRINT instruction for each expression
+        for expr in node.expressions:
+            result = self.visit(expr)
+            self.emit(f"PRINT {result}")
     
     def visit_InputStmt(self, node):
         self.emit(f"READ {node.identifier}")
     
     def visit_Block(self, node):
+        # Emit scope markers for proper variable scoping
+        self.emit("ENTER_SCOPE")
         for stmt in node.statements:
             self.visit(stmt)
+        self.emit("EXIT_SCOPE")
     
     def visit_BinaryOp(self, node):
         left = self.visit(node.left)

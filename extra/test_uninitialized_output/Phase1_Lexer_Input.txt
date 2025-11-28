@@ -1,0 +1,22 @@
+// Test uninitialized variables
+
+int x;
+x = 10;
+print x;  // Should print 10
+
+int y;
+int z;
+y = 5;
+z = y + 3;
+print z;  // Should print 8
+
+// Test loop with pre-initialized variable
+int i;
+i = 0;
+loop from i to 5 {
+    print i;
+}
+
+// Test error case - using uninitialized variable
+int a;
+print a;  // Should give error or warning
