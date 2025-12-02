@@ -6,6 +6,7 @@ Executes Three-Address Code and shows output
 class TACInterpreter:
     def __init__(self):
         self.variables = {}
+        self.var_types = {}  # Track variable types for conversions
         self.labels = {}
         self.functions = {}
         self.arg_stack = []  # For function arguments
@@ -105,6 +106,10 @@ class TACInterpreter:
         elif instruction.startswith('ALLOC'):
             parts = instruction.split()
             var_name = parts[1]
+            var_type = parts[2] if len(parts) > 2 else 'int'
+            
+            # Track variable type
+            self.var_types[var_name] = var_type
             
             # Track if this is an allocation in a scope
             if self.scope_stack:
@@ -231,6 +236,19 @@ class TACInterpreter:
                     else:
                         # Evaluate expression
                         value = self.evaluate_expression(expr)
+                        
+                        # Type conversion: char to int
+                        if var_name in self.var_types:
+                            target_type = self.var_types[var_name]
+                            
+                            # Convert single character to ASCII value for int variables
+                            if target_type == 'int' and isinstance(value, str) and len(value) == 1:
+                                value = ord(value)
+                            
+                            # Convert int to float for float variables
+                            elif target_type == 'float' and isinstance(value, int):
+                                value = float(value)
+                        
                         self.variables[var_name] = value
     
     def evaluate_expression(self, expr):

@@ -104,19 +104,26 @@ class Optimizer:
         
         # First pass: collect all used variables
         for instruction in code:
-            # Find variables on right side of assignments
-            if '=' in instruction and not instruction.endswith(':'):
-                parts = instruction.split('=')
-                if len(parts) == 2:
-                    right_side = parts[1]
-                    # Extract variable names (not numbers)
-                    tokens = re.findall(r'\b[a-zA-Z_]\w*\b', right_side)
-                    used_vars.update(tokens)
-            
-            # Variables in control flow
+            # Variables in control flow (IF_FALSE, GOTO, PRINT, READ) - check FIRST
             if any(keyword in instruction for keyword in ['IF_FALSE', 'GOTO', 'PRINT', 'READ']):
                 tokens = re.findall(r'\b[a-zA-Z_]\w*\b', instruction)
-                used_vars.update(tokens)
+                # Filter out keywords
+                keywords = {'IF_FALSE', 'GOTO', 'PRINT', 'READ', 'ALLOC', 'ENTER_SCOPE', 'EXIT_SCOPE', 'PARAM', 'PUSH', 'CALL', 'RETURN'}
+                for token in tokens:
+                    if token not in keywords:
+                        used_vars.add(token)
+            
+            # Find variables on right side of assignments (but not the left side)
+            # Be careful with == operator
+            elif '=' in instruction and not instruction.endswith(':'):
+                # Check if it's an assignment (single =) not a comparison (==)
+                if '==' not in instruction and '!=' not in instruction and '<=' not in instruction and '>=' not in instruction:
+                    parts = instruction.split('=', 1)  # Split only on first =
+                    if len(parts) == 2:
+                        right_side = parts[1]
+                        # Extract variable names used on right side (not numbers)
+                        tokens = re.findall(r'\b[a-zA-Z_]\w*\b', right_side)
+                        used_vars.update(tokens)
         
         # Second pass: keep only instructions that define used variables or are control flow
         optimized = []
@@ -126,19 +133,34 @@ class Optimizer:
                 optimized.append(instruction)
                 continue
             
-            # Keep PRINT, READ, ALLOC
-            if any(keyword in instruction for keyword in ['PRINT', 'READ', 'ALLOC']):
+            # Keep PRINT, READ, ALLOC, function-related instructions
+            if any(keyword in instruction for keyword in ['PRINT', 'READ', 'ALLOC', 'PARAM', 'PUSH', 'CALL', 'RETURN', 'END_FUNC', 'END_MAIN']):
                 optimized.append(instruction)
+                continue
+            
+            # Skip ENTER_SCOPE and EXIT_SCOPE - not needed in optimized code
+            if 'ENTER_SCOPE' in instruction or 'EXIT_SCOPE' in instruction:
                 continue
             
             # For assignments, check if left side is used
             if '=' in instruction:
-                parts = instruction.split('=')
-                if len(parts) == 2:
-                    left_var = parts[0].strip()
-                    # Keep if it's not a temporary or if it's used
-                    if not left_var.startswith('t') or left_var in used_vars:
-                        optimized.append(instruction)
-                        continue
+                # Make sure it's an assignment, not just a label
+                if '==' not in instruction and '!=' not in instruction and '<=' not in instruction and '>=' not in instruction:
+                    parts = instruction.split('=', 1)
+                    if len(parts) == 2:
+                        left_var = parts[0].strip()
+                        # Keep if it's not a temporary OR if it's used somewhere
+                        if not left_var.startswith('t') or left_var in used_vars:
+                            optimized.append(instruction)
+                            continue
+                else:
+                    # It's a comparison operation (contains ==, !=, <=, >=)
+                    # These should always be kept if they define a variable
+                    parts = instruction.split('=', 1)
+                    if len(parts) == 2:
+                        left_var = parts[0].strip()
+                        if left_var in used_vars or not left_var.startswith('t'):
+                            optimized.append(instruction)
+                            continue
         
         return optimized
