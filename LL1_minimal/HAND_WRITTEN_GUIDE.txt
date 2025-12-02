@@ -1,0 +1,315 @@
+================================================================================
+                    HAND-WRITTEN PARSING TABLE GUIDE
+================================================================================
+
+This guide shows you EXACTLY how to build the LL(1) parsing table by hand
+for the minimal grammar.
+
+================================================================================
+STEP 1: WRITE THE GRAMMAR
+================================================================================
+
+Program → Stmt
+
+Stmt → Expr ';'
+     | Cond ';'
+
+Expr → Factor Expr'
+
+Expr' → '+' Factor Expr'
+      | ε
+
+Factor → id
+       | call
+       | '(' Expr ')'
+
+call → id '(' ')'
+
+Cond → Expr '==' Expr
+     | '(' Cond ')'
+
+================================================================================
+STEP 2: COMPUTE NULLABLE
+================================================================================
+
+A non-terminal is NULLABLE if it can derive ε (empty string).
+
+Algorithm:
+1. Mark any non-terminal with production → ε as nullable
+2. Mark any non-terminal with production → all nullable symbols as nullable
+3. Repeat until no changes
+
+Iteration 1:
+  - Expr' has production → ε
+  - Mark Expr' as NULLABLE
+
+Iteration 2:
+  - No new nullable non-terminals
+  - DONE!
+
+RESULT:
+  NULLABLE = {Expr'}
+
+================================================================================
+STEP 3: COMPUTE FIRST SETS
+================================================================================
+
+FIRST(X) = set of terminals that can start strings derived from X
+
+Algorithm:
+1. For terminals: FIRST(a) = {a}
+2. For non-terminals:
+   - If X → a..., add 'a' to FIRST(X)
+   - If X → Y..., add FIRST(Y) - {ε} to FIRST(X)
+   - If X → Y... and Y is nullable, continue to next symbol
+   - If X → ε, add ε to FIRST(X)
+
+Step-by-Step:
+
+FIRST(Program):
+  - Program → Stmt
+  - FIRST(Program) = FIRST(Stmt)
+  - Need to compute FIRST(Stmt) first
+
+FIRST(Stmt):
+  - Stmt → Expr ';'
+  - FIRST(Expr ';') = FIRST(Expr)
+  - Stmt → Cond ';'
+  - FIRST(Cond ';') = FIRST(Cond)
+  - FIRST(Stmt) = FIRST(Expr) ∪ FIRST(Cond)
+  - Need to compute FIRST(Expr) and FIRST(Cond) first
+
+FIRST(Expr):
+  - Expr → Factor Expr'
+  - FIRST(Factor Expr') = FIRST(Factor)
+  - Need to compute FIRST(Factor) first
+
+FIRST(Factor):
+  - Factor → id
+  - FIRST(id) = {id}
+  - Factor → call
+  - FIRST(call) = FIRST(call) (need to compute)
+  - Factor → '(' Expr ')'
+  - FIRST('(' Expr ')') = {'('}
+
+FIRST(call):
+  - call → id '(' ')'
+  - FIRST(id '(' ')') = {id}
+
+Back to FIRST(Factor):
+  - FIRST(Factor) = {id} ∪ {id} ∪ {'('} = {id, '('}
+
+Back to FIRST(Expr):
+  - FIRST(Expr) = FIRST(Factor) = {id, '('}
+
+FIRST(Expr'):
+  - Expr' → '+' Factor Expr'
+  - FIRST('+' Factor Expr') = {'+'}
+  - Expr' → ε
+  - FIRST(ε) = {ε}
+  - FIRST(Expr') = {'+', ε}
+
+FIRST(Cond):
+  - Cond → Expr '==' Expr
+  - FIRST(Expr '==' Expr) = FIRST(Expr) = {id, '('}
+  - Cond → '(' Cond ')'
+  - FIRST('(' Cond ')') = {'('}
+  - FIRST(Cond) = {id, '('} ∪ {'('} = {id, '('}
+
+Back to FIRST(Stmt):
+  - FIRST(Stmt) = FIRST(Expr) ∪ FIRST(Cond)
+  - FIRST(Stmt) = {id, '('} ∪ {id, '('} = {id, '('}
+
+Back to FIRST(Program):
+  - FIRST(Program) = FIRST(Stmt) = {id, '('}
+
+FINAL RESULT:
+  FIRST(Program) = {id, '('}
+  FIRST(Stmt)    = {id, '('}
+  FIRST(Expr)    = {id, '('}
+  FIRST(Expr')   = {'+', ε}
+  FIRST(Factor)  = {id, '('}
+  FIRST(call)    = {id}
+  FIRST(Cond)    = {id, '('}
+
+================================================================================
+STEP 4: COMPUTE FOLLOW SETS
+================================================================================
+
+FOLLOW(X) = set of terminals that can appear immediately after X
+
+Algorithm:
+1. Add $ to FOLLOW(start symbol)
+2. If A → αBβ, add FIRST(β) - {ε} to FOLLOW(B)
+3. If A → αB or A → αBβ where β is nullable, add FOLLOW(A) to FOLLOW(B)
+4. Repeat until no changes
+
+Iteration 1:
+
+FOLLOW(Program):
+  - Program is start symbol
+  - FOLLOW(Program) = {$}
+
+FOLLOW(Stmt):
+  - Program → Stmt
+  - Stmt is at end, add FOLLOW(Program)
+  - FOLLOW(Stmt) = {$}
+
+FOLLOW(Expr):
+  - Stmt → Expr ';'
+  - After Expr comes ';'
+  - FOLLOW(Expr) = {';'}
+  - Cond → Expr '==' Expr
+  - After first Expr comes '=='
+  - FOLLOW(Expr) = {';', '=='}
+  - After second Expr comes FOLLOW(Cond)
+  - Need FOLLOW(Cond) first
+
+FOLLOW(Cond):
+  - Stmt → Cond ';'
+  - After Cond comes ';'
+  - FOLLOW(Cond) = {';'}
+  - Cond → '(' Cond ')'
+  - After Cond comes ')'
+  - FOLLOW(Cond) = {';', ')'}
+
+Back to FOLLOW(Expr):
+  - FOLLOW(Expr) = {';', '==', ';', ')'} = {';', '==', ')'}
+  - Factor → '(' Expr ')'
+  - After Expr comes ')'
+  - FOLLOW(Expr) = {';', '==', ')', ')'}  = {';', '==', ')'}
+
+FOLLOW(Expr'):
+  - Expr → Factor Expr'
+  - Expr' is at end, add FOLLOW(Expr)
+  - FOLLOW(Expr') = {';', '==', ')'}
+  - Expr' → '+' Factor Expr'
+  - Expr' is at end, add FOLLOW(Expr')
+  - No new additions
+
+FOLLOW(Factor):
+  - Expr → Factor Expr'
+  - After Factor comes Expr'
+  - FIRST(Expr') = {'+', ε}
+  - Add FIRST(Expr') - {ε} = {'+'}
+  - Expr' is nullable, add FOLLOW(Expr)
+  - FOLLOW(Factor) = {'+', ';', '==', ')'}
+  - Expr' → '+' Factor Expr'
+  - After Factor comes Expr'
+  - Same as above
+  - FOLLOW(Factor) = {'+', ';', '==', ')'}
+
+FOLLOW(call):
+  - Factor → call
+  - call is at end, add FOLLOW(Factor)
+  - FOLLOW(call) = {'+', ';', '==', ')'}
+
+FINAL RESULT:
+  FOLLOW(Program) = {$}
+  FOLLOW(Stmt)    = {$}
+  FOLLOW(Expr)    = {';', '==', ')'}
+  FOLLOW(Expr')   = {';', '==', ')'}
+  FOLLOW(Factor)  = {'+', ';', '==', ')'}
+  FOLLOW(call)    = {'+', ';', '==', ')'}
+  FOLLOW(Cond)    = {';', ')'}
+
+================================================================================
+STEP 5: BUILD PARSING TABLE
+================================================================================
+
+For each production A → α:
+1. For each terminal 'a' in FIRST(α), add A → α to table[A, a]
+2. If ε in FIRST(α), for each terminal 'b' in FOLLOW(A), add A → α to table[A, b]
+
+Let's build it production by production:
+
+Production: Program → Stmt
+  - FIRST(Stmt) = {id, '('}
+  - Add to table[Program, id] = Program → Stmt
+  - Add to table[Program, '('] = Program → Stmt
+
+Production: Stmt → Expr ';'
+  - FIRST(Expr ';') = FIRST(Expr) = {id, '('}
+  - Add to table[Stmt, id] = Stmt → Expr ';'
+  - Add to table[Stmt, '('] = Stmt → Expr ';'
+
+Production: Stmt → Cond ';'
+  - FIRST(Cond ';') = FIRST(Cond) = {id, '('}
+  - Add to table[Stmt, id] = Stmt → Cond ';'  ← CONFLICT! Already has Stmt → Expr ';'
+  - Add to table[Stmt, '('] = Stmt → Cond ';' ← CONFLICT! Already has Stmt → Expr ';'
+
+Production: Expr → Factor Expr'
+  - FIRST(Factor Expr') = FIRST(Factor) = {id, '('}
+  - Add to table[Expr, id] = Expr → Factor Expr'
+  - Add to table[Expr, '('] = Expr → Factor Expr'
+
+Production: Expr' → '+' Factor Expr'
+  - FIRST('+' Factor Expr') = {'+'}
+  - Add to table[Expr', '+'] = Expr' → '+' Factor Expr'
+
+Production: Expr' → ε
+  - FIRST(ε) = {ε}
+  - ε in FIRST, use FOLLOW(Expr') = {';', '==', ')'}
+  - Add to table[Expr', ';'] = Expr' → ε
+  - Add to table[Expr', '=='] = Expr' → ε
+  - Add to table[Expr', ')'] = Expr' → ε
+
+Production: Factor → id
+  - FIRST(id) = {id}
+  - Add to table[Factor, id] = Factor → id
+
+Production: Factor → call
+  - FIRST(call) = {id}
+  - Add to table[Factor, id] = Factor → call  ← CONFLICT! Already has Factor → id
+
+Production: Factor → '(' Expr ')'
+  - FIRST('(' Expr ')') = {'('}
+  - Add to table[Factor, '('] = Factor → '(' Expr ')'
+
+Production: call → id '(' ')'
+  - FIRST(id '(' ')') = {id}
+  - Add to table[call, id] = call → id '(' ')'
+
+Production: Cond → Expr '==' Expr
+  - FIRST(Expr '==' Expr) = FIRST(Expr) = {id, '('}
+  - Add to table[Cond, id] = Cond → Expr '==' Expr
+  - Add to table[Cond, '('] = Cond → Expr '==' Expr
+
+Production: Cond → '(' Cond ')'
+  - FIRST('(' Cond ')') = {'('}
+  - Add to table[Cond, '('] = Cond → '(' Cond ')'  ← CONFLICT! Already has Cond → Expr '==' Expr
+
+================================================================================
+STEP 6: FINAL PARSING TABLE
+================================================================================
+
+        | id          | (           | )       | +           | ==      | ;       | $
+--------|-------------|-------------|---------|-------------|---------|---------|-------
+Program | P→S         | P→S         | -       | -           | -       | -       | -
+Stmt    | CONFLICT    | CONFLICT    | -       | -           | -       | -       | -
+Expr    | E→FE'       | E→FE'       | -       | -           | -       | -       | -
+Expr'   | -           | -           | E'→ε    | E'→+FE'     | E'→ε    | E'→ε    | -
+Factor  | CONFLICT    | F→(E)       | -       | -           | -       | -       | -
+call    | c→id()      | -           | -       | -           | -       | -       | -
+Cond    | C→E==E      | CONFLICT    | -       | -           | -       | -       | -
+
+CONFLICTS:
+1. table[Stmt, id]: Stmt→Expr';' / Stmt→Cond';'
+2. table[Stmt, '(']: Stmt→Expr';' / Stmt→Cond';'
+3. table[Factor, id]: Factor→id / Factor→call
+4. table[Cond, '(']: Cond→Expr'=='Expr / Cond→'('Cond')'
+
+================================================================================
+CONCLUSION
+================================================================================
+
+The grammar is NOT LL(1) because it has 4 conflicts.
+
+To make it LL(1), you would need to:
+1. Left factor or restructure the conflicting productions
+2. Or use a more powerful parser (LALR, LR)
+
+This minimal grammar demonstrates the same types of conflicts as the full
+grammar but is small enough to work with by hand!
+
+================================================================================

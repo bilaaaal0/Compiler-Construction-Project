@@ -1,0 +1,234 @@
+================================================================================
+                    SLR(1) ANALYSIS RESULTS
+================================================================================
+
+Analysis Date: November 30, 2025
+Grammar: Minimal grammar extracted from full grammar
+
+================================================================================
+SUMMARY
+================================================================================
+
+LR(0):  ❌ NOT ACCEPTED (2 conflicts)
+SLR(1): ❌ NOT ACCEPTED (1 conflict)
+
+Improvement: ✓ SLR(1) resolved 1 out of 2 conflicts (50% improvement)
+
+================================================================================
+LR(0) CONFLICTS (2 total)
+================================================================================
+
+Conflict 1: State 7, Symbol '('
+  Type: shift-reduce
+  Actions: r3 / s12
+  
+  Problem:
+    After seeing IDENTIFIER, when parser sees '(':
+    - Reduce IDENTIFIER to Factor (r3)
+    - Shift '(' to parse FunctionCall (s12)
+  
+  Productions:
+    Factor → IDENTIFIER
+    FunctionCall → IDENTIFIER '(' ')'
+
+Conflict 2: State 16, Symbol '&&'
+  Type: shift-reduce
+  Actions: r1 / s10
+  
+  Problem:
+    After parsing "Expr == Expr", when parser sees '&&':
+    - Reduce to Cond (r1)
+    - Shift '&&' to parse Cond && Cond (s10)
+  
+  Productions:
+    Cond → Expr '==' Expr
+    Cond → Cond '&&' Cond
+
+================================================================================
+SLR(1) CONFLICTS (1 total)
+================================================================================
+
+Conflict 1: State 16, Symbol '&&'  ← STILL PRESENT
+  Type: shift-reduce
+  Actions: r1 / s10
+  
+  Problem:
+    Same as LR(0) Conflict 2
+    '&&' is in FOLLOW(Cond), so reduce action still applies
+
+================================================================================
+CONFLICT RESOLVED BY SLR(1)
+================================================================================
+
+✓ Conflict 1 (State 7, '(') - RESOLVED!
+
+Why it was resolved:
+  
+  LR(0) Behavior:
+    - Complete item: Factor → IDENTIFIER ·
+    - LR(0) adds reduce r3 for ALL terminals
+    - Including '(' → conflict with shift s12
+  
+  SLR(1) Behavior:
+    - Complete item: Factor → IDENTIFIER ·
+    - FOLLOW(Factor) = {'&&', ')', ';', '=='}
+    - SLR(1) adds reduce r3 ONLY for terminals in FOLLOW(Factor)
+    - '(' is NOT in FOLLOW(Factor)
+    - No reduce action for '(' → only shift s12
+    - NO CONFLICT!
+
+Explanation:
+  After IDENTIFIER, '(' can only appear in FunctionCall context.
+  It cannot appear after a complete Factor in valid input.
+  SLR(1) recognizes this using FOLLOW sets.
+
+================================================================================
+CONFLICT NOT RESOLVED BY SLR(1)
+================================================================================
+
+✗ Conflict 2 (State 16, '&&') - NOT RESOLVED
+
+Why it persists:
+  
+  LR(0) Behavior:
+    - Complete item: Cond → Expr '==' Expr ·
+    - LR(0) adds reduce r1 for ALL terminals
+    - Including '&&' → conflict with shift s10
+  
+  SLR(1) Behavior:
+    - Complete item: Cond → Expr '==' Expr ·
+    - FOLLOW(Cond) = {'&&', ';'}
+    - SLR(1) adds reduce r1 for terminals in FOLLOW(Cond)
+    - '&&' IS in FOLLOW(Cond)
+    - Reduce action for '&&' → conflict with shift s10
+    - STILL CONFLICT!
+
+Explanation:
+  The grammar has: Cond → Cond '&&' Cond
+  This means '&&' can follow Cond, so it's in FOLLOW(Cond).
+  After "Expr == Expr", we have a complete Cond, and '&&' can follow it.
+  But '&&' can also be shifted to build Cond && Cond.
+  SLR(1) cannot distinguish these cases.
+
+================================================================================
+FOLLOW SETS (Key to SLR(1))
+================================================================================
+
+FOLLOW(Program') = {$}
+FOLLOW(Program)  = {$}
+FOLLOW(Stmt)     = {$}
+FOLLOW(Expr)     = {'&&', ')', ';', '=='}
+FOLLOW(Factor)   = {'&&', ')', ';', '=='}  ← '(' NOT in FOLLOW!
+FOLLOW(FunctionCall) = {'&&', ')', ';', '=='}
+FOLLOW(Cond)     = {'&&', ';'}  ← '&&' IS in FOLLOW!
+
+Key Observation:
+  - '(' is NOT in FOLLOW(Factor) → Conflict 1 resolved
+  - '&&' IS in FOLLOW(Cond) → Conflict 2 persists
+
+================================================================================
+COMPARISON: LR(0) vs SLR(1)
+================================================================================
+
+┌─────────────────────┬─────────────┬─────────────┬──────────────┐
+│ Metric              │ LR(0)       │ SLR(1)      │ Improvement  │
+├─────────────────────┼─────────────┼─────────────┼──────────────┤
+│ Conflicts           │ 2           │ 1           │ 50%          │
+│ Is Accepted?        │ NO          │ NO          │ -            │
+│ Reduce Strategy     │ All terms   │ FOLLOW only │ More precise │
+│ State 7, '('        │ Conflict    │ ✓ Resolved  │ ✓            │
+│ State 16, '&&'      │ Conflict    │ Conflict    │ -            │
+└─────────────────────┴─────────────┴─────────────┴──────────────┘
+
+================================================================================
+WHY SLR(1) IS MORE POWERFUL THAN LR(0)
+================================================================================
+
+LR(0) Problem:
+  When a complete item A → α · is in a state, LR(0) adds reduce action
+  for ALL terminals. This is overly conservative and causes many conflicts.
+
+SLR(1) Solution:
+  When a complete item A → α · is in a state, SLR(1) adds reduce action
+  ONLY for terminals in FOLLOW(A). This is more precise because it only
+  reduces when the next symbol can actually follow A in valid input.
+
+Example from this grammar:
+  - Factor → IDENTIFIER · is complete
+  - LR(0): reduce for all terminals (including '(')
+  - SLR(1): reduce only for FOLLOW(Factor) = {'&&', ')', ';', '=='}
+  - '(' is not in FOLLOW(Factor), so no reduce → conflict resolved!
+
+================================================================================
+WHY SLR(1) STILL FAILS FOR THIS GRAMMAR
+================================================================================
+
+The remaining conflict (State 16, '&&') requires more context:
+
+  After "Expr == Expr", seeing '&&':
+    - Could be end of condition: "x == y" followed by "&&" in outer context
+    - Could be continuation: "x == y && z == w"
+
+To resolve this, we need to know:
+  - What comes after the entire Cond?
+  - Is this Cond part of a larger Cond?
+
+SLR(1) only uses FOLLOW sets, which don't provide enough context.
+
+Solutions:
+  1. LALR(1): Uses lookahead sets (more context than FOLLOW)
+  2. LR(1): Uses full lookahead (most powerful)
+  3. Modify grammar: Eliminate left recursion or change structure
+
+================================================================================
+PRACTICAL IMPLICATIONS
+================================================================================
+
+For this grammar:
+  - LR(0): ❌ Cannot parse
+  - SLR(1): ❌ Cannot parse (but better than LR(0))
+  - LALR(1): ❓ Might work (needs analysis)
+  - LR(1): ✅ Will definitely work
+
+Recommendation:
+  Use LALR(1) parser (industry standard, used in Yacc/Bison)
+
+================================================================================
+CONNECTION TO FULL GRAMMAR
+================================================================================
+
+Your full grammar (LR0/):
+  - LR(0): 3 conflicts
+  - SLR(1): Likely 1-2 conflicts (similar pattern)
+  - LALR(1): Likely 0 conflicts (recommended)
+
+The minimal grammar demonstrates the same issues:
+  - Factor/FunctionCall conflict → Resolved by SLR(1)
+  - Condition/&& conflict → Persists in SLR(1)
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. SLR(1) is more powerful than LR(0)
+   - Uses FOLLOW sets for more precise reduce decisions
+   - Resolves many common conflicts
+
+2. SLR(1) is not always sufficient
+   - Some conflicts require more context
+   - LALR(1) or LR(1) may be needed
+
+3. FOLLOW sets are crucial
+   - Determine when reduce actions apply
+   - More precise than "all terminals"
+
+4. This grammar needs LALR(1) or LR(1)
+   - SLR(1) resolves 50% of conflicts
+   - Remaining conflict needs more powerful parser
+
+5. Understanding the progression
+   - LR(0) → SLR(1) → LALR(1) → LR(1)
+   - Each level adds more context
+   - Trade-off between power and complexity
+
+================================================================================

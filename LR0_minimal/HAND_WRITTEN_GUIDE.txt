@@ -1,0 +1,356 @@
+================================================================================
+                    HAND-WRITTEN LR(0) PARSING TABLES GUIDE
+================================================================================
+
+This guide shows you EXACTLY how to build LR(0) parsing tables by hand
+for the minimal grammar extracted from your full grammar.
+
+================================================================================
+STEP 1: WRITE THE GRAMMAR
+================================================================================
+
+Program → Stmt
+
+Stmt → Expr ';'
+     | Cond ';'
+
+Expr → Factor
+
+Factor → IDENTIFIER
+       | FunctionCall
+       | '(' Expr ')'
+
+FunctionCall → IDENTIFIER '(' ')'
+
+Cond → Expr '==' Expr
+     | Cond '&&' Cond
+
+================================================================================
+STEP 2: AUGMENT THE GRAMMAR
+================================================================================
+
+Add a new start symbol S' that produces the original start symbol:
+
+Program' → Program    ← NEW PRODUCTION (Production 0)
+
+This helps us know when to accept the input.
+
+================================================================================
+STEP 3: NUMBER ALL PRODUCTIONS
+================================================================================
+
+0. Program' → Program
+1. Program → Stmt
+2. Stmt → Expr ';'
+3. Stmt → Cond ';'
+4. Expr → Factor
+5. Factor → IDENTIFIER
+6. Factor → FunctionCall
+7. Factor → '(' Expr ')'
+8. FunctionCall → IDENTIFIER '(' ')'
+9. Cond → Expr '==' Expr
+10. Cond → Cond '&&' Cond
+
+================================================================================
+STEP 4: BUILD LR(0) ITEMS
+================================================================================
+
+An LR(0) item is a production with a dot (·) showing how much we've seen.
+
+Example:
+  Factor → · IDENTIFIER        (haven't seen anything yet)
+  Factor → IDENTIFIER ·        (seen IDENTIFIER, complete)
+  FunctionCall → IDENTIFIER · '(' ')'  (seen IDENTIFIER, expecting '(' next)
+
+================================================================================
+STEP 5: COMPUTE CLOSURE
+================================================================================
+
+CLOSURE adds items for non-terminals that appear after the dot.
+
+Algorithm:
+  If item is A → α · B β, add all items B → · γ for each production of B
+
+Example:
+  Start with: Program' → · Program
+  
+  Program is after dot, so add all Program productions:
+    Program → · Stmt
+  
+  Stmt is after dot, so add all Stmt productions:
+    Stmt → · Expr ';'
+    Stmt → · Cond ';'
+  
+  Expr is after dot, so add all Expr productions:
+    Expr → · Factor
+  
+  Factor is after dot, so add all Factor productions:
+    Factor → · IDENTIFIER
+    Factor → · FunctionCall
+    Factor → · '(' Expr ')'
+  
+  FunctionCall is after dot, so add:
+    FunctionCall → · IDENTIFIER '(' ')'
+  
+  Cond is after dot, so add all Cond productions:
+    Cond → · Expr '==' Expr
+    Cond → · Cond '&&' Cond
+  
+  Continue until no new items can be added.
+
+================================================================================
+STEP 6: BUILD STATE 0 (INITIAL STATE)
+================================================================================
+
+I0 = CLOSURE({Program' → · Program})
+
+Result:
+  Program' → · Program
+  Program → · Stmt
+  Stmt → · Expr ';'
+  Stmt → · Cond ';'
+  Expr → · Factor
+  Factor → · IDENTIFIER
+  Factor → · FunctionCall
+  Factor → · '(' Expr ')'
+  FunctionCall → · IDENTIFIER '(' ')'
+  Cond → · Expr '==' Expr
+  Cond → · Cond '&&' Cond
+
+================================================================================
+STEP 7: COMPUTE GOTO FUNCTION
+================================================================================
+
+GOTO(I, X) = CLOSURE of all items where dot moves past X
+
+Algorithm:
+  1. For each item A → α · X β in state I
+  2. Move dot past X: A → α X · β
+  3. Compute CLOSURE of all such items
+  4. This becomes a new state (or existing state if same items)
+
+Example from I0:
+
+GOTO(I0, IDENTIFIER):
+  Take items with · IDENTIFIER:
+    Factor → · IDENTIFIER
+    FunctionCall → · IDENTIFIER '(' ')'
+  
+  Move dot past IDENTIFIER:
+    Factor → IDENTIFIER ·
+    FunctionCall → IDENTIFIER · '(' ')'
+  
+  Compute CLOSURE (no non-terminals after dot):
+    Factor → IDENTIFIER ·
+    FunctionCall → IDENTIFIER · '(' ')'
+  
+  This is State I2
+
+GOTO(I0, '('):
+  Take items with · '(':
+    Factor → · '(' Expr ')'
+  
+  Move dot past '(':
+    Factor → '(' · Expr ')'
+  
+  Compute CLOSURE (Expr after dot):
+    Factor → '(' · Expr ')'
+    Expr → · Factor
+    Factor → · IDENTIFIER
+    Factor → · FunctionCall
+    Factor → · '(' Expr ')'
+    FunctionCall → · IDENTIFIER '(' ')'
+  
+  This is State I3
+
+Continue for all symbols...
+
+================================================================================
+STEP 8: BUILD ALL STATES
+================================================================================
+
+State I0:
+  Program' → · Program
+  Program → · Stmt
+  Stmt → · Expr ';'
+  Stmt → · Cond ';'
+  Expr → · Factor
+  Factor → · IDENTIFIER
+  Factor → · FunctionCall
+  Factor → · '(' Expr ')'
+  FunctionCall → · IDENTIFIER '(' ')'
+  Cond → · Expr '==' Expr
+  Cond → · Cond '&&' Cond
+
+State I1:
+  Program' → Program ·
+
+State I2: ← CONFLICT STATE!
+  Factor → IDENTIFIER ·
+  FunctionCall → IDENTIFIER · '(' ')'
+
+State I3:
+  Factor → '(' · Expr ')'
+  Expr → · Factor
+  Factor → · IDENTIFIER
+  Factor → · FunctionCall
+  Factor → · '(' Expr ')'
+  FunctionCall → · IDENTIFIER '(' ')'
+
+... (continue for all 20 states)
+
+================================================================================
+STEP 9: BUILD ACTION TABLE
+================================================================================
+
+For each state I and terminal a:
+
+Rule 1: SHIFT
+  If item is A → α · a β and GOTO(I, a) = J
+  Then ACTION[I, a] = shift J (written as sJ)
+
+Rule 2: REDUCE
+  If item is A → α · (complete item, dot at end)
+  Then ACTION[I, a] = reduce by production (written as rN)
+  Add this for ALL terminals!
+
+Rule 3: ACCEPT
+  If item is S' → S ·
+  Then ACTION[I, $] = accept
+
+Example for State I2:
+
+Items in I2:
+  Factor → IDENTIFIER ·           ← Complete item
+  FunctionCall → IDENTIFIER · '(' ')'  ← Incomplete item
+
+For '(':
+  - Incomplete item says: shift to GOTO(I2, '(') = I9
+  - Complete item says: reduce by production 5 (Factor → IDENTIFIER)
+  - CONFLICT! Both shift and reduce
+
+For other terminals (';', '==', '&&', '$', IDENTIFIER):
+  - Only complete item applies
+  - ACTION[I2, terminal] = r5
+
+ACTION Table for I2:
+  IDENTIFIER: r5
+  '(': s9 / r5  ← CONFLICT!
+  ')': r5
+  ';': r5
+  '==': r5
+  '&&': r5
+  $: r5
+
+================================================================================
+STEP 10: BUILD GOTO TABLE
+================================================================================
+
+For each state I and non-terminal A:
+  If GOTO(I, A) = J
+  Then GOTO[I, A] = J
+
+Example from I0:
+  GOTO(I0, Program) = I1  → GOTO[0, Program] = 1
+  GOTO(I0, Stmt) = I4     → GOTO[0, Stmt] = 4
+  GOTO(I0, Expr) = I5     → GOTO[0, Expr] = 5
+  GOTO(I0, Factor) = I6   → GOTO[0, Factor] = 6
+  GOTO(I0, FunctionCall) = I7 → GOTO[0, FunctionCall] = 7
+  GOTO(I0, Cond) = I8     → GOTO[0, Cond] = 8
+
+================================================================================
+STEP 11: COMPLETE TABLES
+================================================================================
+
+ACTION TABLE (20 states × 7 terminals):
+
+State | IDENTIFIER | (    | )    | ;    | ==   | &&   | $
+------|------------|------|------|------|------|------|------
+0     | s2         | s3   | -    | -    | -    | -    | -
+1     | -          | -    | -    | -    | -    | -    | acc
+2     | r5         | s9/r5| r5   | r5   | r5   | r5   | r5  ← CONFLICT!
+3     | s2         | s3   | -    | -    | -    | -    | -
+4     | -          | -    | -    | -    | -    | -    | r1
+5     | -          | -    | -    | s10  | s11  | -    | -
+6     | -          | -    | -    | r4   | r4   | -    | -
+7     | -          | -    | -    | r6   | r6   | -    | -
+8     | -          | -    | -    | s12  | -    | s13  | -
+9     | -          | -    | s14  | -    | -    | -    | -
+10    | -          | -    | -    | r2   | -    | -    | -
+11    | s2         | s3   | -    | -    | -    | -    | -
+12    | -          | -    | -    | r3   | -    | -    | -
+13    | s2         | s3   | -    | -    | -    | -    | -
+14    | -          | -    | -    | r7   | -    | -    | -
+15    | -          | -    | -    | r4   | r4   | -    | -
+16    | -          | -    | -    | r9   | -    | s13/r9| -  ← CONFLICT!
+17    | -          | -    | -    | r6   | r6   | -    | -
+18    | -          | -    | -    | r10  | -    | r10  | -
+19    | -          | -    | -    | r8   | -    | -    | -
+
+GOTO TABLE (20 states × 7 non-terminals):
+
+State | Program' | Program | Stmt | Expr | Factor | FunctionCall | Cond
+------|----------|---------|------|------|--------|--------------|------
+0     | -        | 1       | 4    | 5    | 6      | 7            | 8
+1     | -        | -       | -    | -    | -      | -            | -
+2     | -        | -       | -    | -    | -      | -            | -
+3     | -        | -       | -    | 15   | 6      | 7            | -
+4     | -        | -       | -    | -    | -      | -            | -
+5     | -        | -       | -    | -    | -      | -            | -
+6     | -        | -       | -    | -    | -      | -            | -
+7     | -        | -       | -    | -    | -      | -            | -
+8     | -        | -       | -    | -    | -      | -            | -
+9     | -        | -       | -    | -    | -      | -            | -
+10    | -        | -       | -    | -    | -      | -            | -
+11    | -        | -       | -    | 16   | -      | -            | -
+12    | -        | -       | -    | -    | -      | -            | -
+13    | -        | -       | -    | -    | -      | -            | 18
+14    | -        | -       | -    | -    | -      | -            | -
+15    | -        | -       | -    | -    | -      | -            | -
+16    | -        | -       | -    | -    | -      | -            | -
+17    | -        | -       | -    | -    | -      | -            | -
+18    | -        | -       | -    | -    | -      | -            | -
+19    | -        | -       | -    | -    | -      | -            | -
+
+================================================================================
+STEP 12: IDENTIFY CONFLICTS
+================================================================================
+
+CONFLICT 1: State 2, Terminal '('
+  Actions: s9 / r5
+  Type: shift-reduce
+  
+  Explanation:
+    After seeing IDENTIFIER, when we see '(':
+    - Could reduce IDENTIFIER to Factor (r5)
+    - Could shift '(' to parse function call (s9)
+    
+  This is the Factor/FunctionCall ambiguity from your full grammar!
+
+CONFLICT 2: State 16, Terminal '&&'
+  Actions: s13 / r9
+  Type: shift-reduce
+  
+  Explanation:
+    After parsing "Expr == Expr", when we see '&&':
+    - Could reduce to Cond (r9)
+    - Could shift '&&' to parse Cond && Cond (s13)
+    
+  This is the Condition/LogicOp ambiguity from your full grammar!
+
+================================================================================
+CONCLUSION
+================================================================================
+
+The grammar is NOT LR(0) because it has 2 shift-reduce conflicts.
+
+These are the EXACT same conflicts that occur in your full grammar:
+1. Factor → IDENTIFIER vs FunctionCall → IDENTIFIER '(' ')'
+2. Cond → Expr '==' Expr vs Cond → Cond '&&' Cond
+
+To resolve these conflicts, you need:
+- SLR(1): Uses FOLLOW sets
+- LALR(1): Uses lookahead sets (industry standard)
+- LR(1): Full lookahead (most powerful)
+
+================================================================================

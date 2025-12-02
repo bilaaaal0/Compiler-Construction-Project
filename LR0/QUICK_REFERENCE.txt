@@ -1,0 +1,182 @@
+================================================================================
+                    LR(0) ANALYSIS - QUICK REFERENCE
+================================================================================
+
+RESULT: ❌ NOT LR(0)
+
+STATES: 171
+TRANSITIONS: 501
+CONFLICTS: 3
+
+================================================================================
+CONFLICT DETAILS
+================================================================================
+
+┌─────────┬──────────┬────────────────┬──────────┬──────────┐
+│ State   │ Symbol   │ Conflict Type  │ Action 1 │ Action 2 │
+├─────────┼──────────┼────────────────┼──────────┼──────────┤
+│ 41      │ '('      │ shift-reduce   │ r23      │ s68      │
+├─────────┼──────────┼────────────────┼──────────┼──────────┤
+│ 100     │ '&&'     │ shift-reduce   │ r8       │ s105     │
+├─────────┼──────────┼────────────────┼──────────┼──────────┤
+│ 132     │ '&&'     │ shift-reduce   │ r7       │ s105     │
+└─────────┴──────────┴────────────────┴──────────┴──────────┘
+
+All conflicts are SHIFT-REDUCE type.
+
+================================================================================
+CONFLICT CAUSES
+================================================================================
+
+Conflict 1 (State 41, '('):
+  → Factor/Expression ambiguity
+  → Cannot distinguish identifier from function call start
+
+Conflicts 2 & 3 (States 100, 132, '&&'):
+  → Logical operator precedence issue
+  → Left-recursive Condition production
+  → Cannot determine when to reduce vs. continue parsing
+
+================================================================================
+LR(0) AUTOMATON STATISTICS
+================================================================================
+
+Total States:           171
+Total Transitions:      501
+Start Symbol:           Program
+Augmented Start:        Program'
+
+Non-Terminals:          33
+Terminals:              42
+Productions:            ~60
+
+Conflict States:        3 (1.8% of all states)
+Conflict-Free States:   168 (98.2% of all states)
+
+================================================================================
+PARSING TABLES
+================================================================================
+
+ACTION Table:
+  Dimensions: 171 × 42
+  Entries: shift (sN), reduce (rN), accept, "-"
+  Conflicts: 3 cells with multiple actions (marked in RED)
+
+GOTO Table:
+  Dimensions: 171 × 33
+  Entries: State numbers or "-"
+  Conflicts: None (GOTO table never has conflicts)
+
+================================================================================
+FILES GENERATED
+================================================================================
+
+1. lr0_analysis.xlsx
+   └─ 6 sheets with complete analysis
+   
+2. ANALYSIS_RESULT.txt
+   └─ Detailed analysis report
+   
+3. CONFLICTS_SUMMARY.txt
+   └─ In-depth explanation of conflicts
+   
+4. README.md
+   └─ Usage guide
+   
+5. QUICK_REFERENCE.txt
+   └─ This file
+
+================================================================================
+EXCEL SHEETS
+================================================================================
+
+Sheet 1: Result
+  - LR(0) determination: NO
+  - States: 171
+  - Conflicts: 3
+  - Detailed conflict table
+
+Sheet 2: Grammar
+  - Production numbers
+  - Non-terminals
+  - Full production rules
+
+Sheet 3: States
+  - All 171 states
+  - LR(0) items with dot positions
+
+Sheet 4: ACTION Table
+  - 171 × 42 table
+  - Conflicts in RED
+  - Empty cells with "-"
+
+Sheet 5: GOTO Table
+  - 171 × 33 table
+  - State transitions
+  - Empty cells with "-"
+
+Sheet 6: Transitions
+  - From State
+  - Symbol
+  - To State
+
+================================================================================
+ACTION TABLE NOTATION
+================================================================================
+
+sN    → Shift to state N
+rN    → Reduce by production N
+accept→ Accept the input
+-     → Error (no action)
+a/b   → Conflict (multiple actions)
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+Since grammar is NOT LR(0), consider:
+
+✓ SLR(1) Parser
+  - Uses FOLLOW sets
+  - May resolve conflicts
+  - Next step in LR parser hierarchy
+
+✓ LALR(1) Parser
+  - Industry standard
+  - Used in Yacc, Bison
+  - Very likely to work
+
+✓ LR(1) Parser
+  - Most powerful
+  - Guaranteed to work
+  - More states
+
+✓ GLR Parser
+  - Handles ambiguity
+  - Most flexible
+
+================================================================================
+COMPARISON WITH LL(1)
+================================================================================
+
+LL(1) Analysis Results:
+  - NOT LL(1)
+  - 2 conflicts found
+  - Conflicts in Factor and Condition
+
+LR(0) Analysis Results:
+  - NOT LR(0)
+  - 3 conflicts found
+  - Conflicts in Factor and Condition
+
+Common Issues:
+  - Both parsers struggle with Factor (IDENTIFIER vs. FunctionCall)
+  - Both parsers struggle with Condition (logical operators)
+  - Grammar requires lookahead for correct parsing
+
+Conclusion:
+  - Grammar is not suitable for simple parsers (LL(1) or LR(0))
+  - Requires more powerful parsing techniques
+  - LALR(1) or LR(1) recommended
+
+================================================================================

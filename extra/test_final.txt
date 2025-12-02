@@ -1,4 +1,0 @@
-// Final test
-int x;
-x = 100;
-print x;

@@ -1,0 +1,26 @@
+======================================================================
+COMPILATION SUMMARY
+======================================================================
+
+PHASE 1: Lexical Analysis
+  - Tokens Generated: 224
+
+PHASE 2: Syntax Analysis
+  - AST Built: ✓
+
+PHASE 3: Semantic Analysis
+  - Variables in Symbol Table: 7
+
+PHASE 4: Intermediate Code Generation
+  - TAC Instructions: 144
+
+PHASE 5: Optimization
+  - Optimized Instructions: 93
+  - Instructions Removed: 51
+
+PHASE 6: Code Generation
+  - Assembly Instructions: 157
+
+======================================================================
+STATUS: ✓ COMPILATION SUCCESSFUL
+======================================================================

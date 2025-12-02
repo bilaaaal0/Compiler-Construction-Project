@@ -1,0 +1,68 @@
+
+
+func int Factorial(int n)
+{
+    if(n==1)
+    {
+        return 1;
+    }
+    return n * Factorial(n-1);
+}
+
+
+int score = 0;
+float average = 0.0;
+int count = 5;
+
+
+loop from i = 1 to count {
+    score = score + i;
+}
+
+
+average = score;
+show score;
+show average;
+
+
+if (score > 20) {
+    show 100;  
+} elif (score > 15) {
+    show 200;  
+} elif (score > 10) {
+    show 300;  
+} else {
+    show 400; 
+}
+
+
+int num = 0;
+loop (num < 5) {
+    if (num == 0) {
+        show 1000;  
+    } elif (num == 4) {
+        show 2000; 
+    } else {
+        show num;  
+    }
+    num = num + 1;
+}
+
+// Nested loop with conditions
+int x = 0;
+loop from x = 0 to 2 {
+    int y = 0;
+    loop from y = 0 to 2 {
+        if (x == y) {
+            show 9999;  
+        } elif (x > y) {
+            show x;
+        } else {
+            show y;
+        }
+    }
+}
+
+
+int fact = Factorial(5);
+show fact;

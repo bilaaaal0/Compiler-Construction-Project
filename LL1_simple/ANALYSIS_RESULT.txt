@@ -1,0 +1,129 @@
+================================================================================
+                    LL(1) GRAMMAR ANALYSIS RESULT
+================================================================================
+
+GRAMMAR: Custom Programming Language Grammar
+ANALYZED: November 30, 2025
+
+================================================================================
+TRANSFORMATIONS PERFORMED
+================================================================================
+
+1. LEFT RECURSION ELIMINATION
+   ✓ Eliminated left recursion in: Condition
+   
+   Original:
+     Condition → Expr RelOp Expr
+              | Condition LogicOp Condition
+              | '!' Condition
+              | '(' Condition ')'
+   
+   Transformed:
+     Condition → Expr RelOp Expr Condition'
+              | '!' Condition Condition'
+              | '(' Condition ')' Condition'
+     Condition' → LogicOp Condition Condition' | ε
+
+2. LEFT FACTORING
+   ✓ Left factored: DeclStmt, LoopStmt, ReturnStmt, ArgList
+   ✓ Multiple iterations performed to handle nested common prefixes
+   
+   Examples:
+   - DeclStmt: Factored "Type IDENTIFIER" prefix
+   - LoopStmt: Factored "loop" and nested "from IDENTIFIER" prefixes
+   - ReturnStmt: Factored "return" prefix
+   - ArgList: Factored IDENTIFIER prefix
+
+================================================================================
+COMPUTED SETS
+================================================================================
+
+NULLABLE SET (14 non-terminals):
+  ArgList, ArgList', ArgListTail, Condition', ElifList, ElsePart, 
+  ExprListTail, ExprPrime, FunctionList, ParamList, ParamListTail, 
+  Program, StmtList, TermPrime
+
+FIRST SETS: Computed for all 42 non-terminals
+FOLLOW SETS: Computed for all 42 non-terminals
+
+(See Excel file for complete details)
+
+================================================================================
+PARSING TABLE
+================================================================================
+
+✓ Predictive parsing table created with full grammar productions
+✓ Format used for conflicts: "A→α / A→β"
+✓ Empty cells marked with dash "-"
+✓ Conflicts highlighted in RED in Excel file
+
+================================================================================
+FINAL RESULT
+================================================================================
+
+IS THE GRAMMAR LL(1)?  ❌ NO
+
+REASON: Found 2 conflicts in the parsing table
+
+CONFLICTS DETECTED:
+
+  Conflict 1:
+    Non-Terminal: Factor
+    Terminal: IDENTIFIER
+    Production 1: Factor → IDENTIFIER
+    Production 2: Factor → FunctionCall
+    
+    Explanation: When parsing Factor and seeing IDENTIFIER, the parser cannot
+    decide whether it's a simple identifier or the start of a function call
+    (which also begins with IDENTIFIER). This requires lookahead beyond LL(1)
+    to check if '(' follows the identifier.
+
+  Conflict 2:
+    Non-Terminal: Condition
+    Terminal: '('
+    Production 1: Condition → Expr RelOp Expr Condition'
+    Production 2: Condition → '(' Condition ')' Condition'
+    
+    Explanation: When parsing Condition and seeing '(', the parser cannot
+    decide whether it's the start of an Expr (which can begin with '(') or
+    the start of a parenthesized Condition.
+
+================================================================================
+CONCLUSION
+================================================================================
+
+The grammar is NOT LL(1) due to the two conflicts mentioned above. These are
+common issues in programming language grammars:
+
+1. The Condition conflict arises from ambiguity in expression parsing
+2. The Factor conflict is a classic issue distinguishing variables from
+   function calls
+
+To make this grammar LL(1), you would need to:
+- Further refactor the Condition production to eliminate the ambiguity
+- Merge Factor productions or use a different approach for function calls
+
+However, the grammar can still be parsed using:
+- LL(k) parser with k > 1
+- LR parser (SLR, LALR, or LR(1))
+- Recursive descent parser with backtracking
+- Predictive parser with conflict resolution strategies
+
+================================================================================
+FILES GENERATED
+================================================================================
+
+1. ll1_analyzer.py - Complete LL(1) analysis tool
+2. grammar_analysis.xlsx - Excel file with 7 sheets:
+   - Result (Summary with detailed conflict table showing Non-Terminal, 
+     Terminal, and both Productions for each conflict)
+   - Original Grammar
+   - Transformed Grammar
+   - NULLABLE
+   - FIRST Sets
+   - FOLLOW Sets
+   - Parsing Table (with conflicts highlighted in RED, empty cells marked 
+     with "-")
+3. ANALYSIS_RESULT.txt - This summary document
+
+================================================================================

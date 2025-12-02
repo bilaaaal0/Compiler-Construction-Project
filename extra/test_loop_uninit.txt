@@ -1,6 +1,0 @@
-// Test loop with uninitialized variable
-
-int i;
-loop from i to 5 {
-    print i;
-}

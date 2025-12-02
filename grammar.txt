@@ -4,7 +4,7 @@ MINI COMPILER - FORMAL GRAMMAR SPECIFICATION (WITH FUNCTIONS)
 
 LEXICAL TOKENS:
 --------------
-Keywords: int, float, char, void, if, elif, else, loop, from, to, step, print, input, return, func
+Keywords: int, float, char, void, if, elif, else, loop, from, to, step, show, tell, return, func
 Operators: +, -, *, /, %, =, ==, !=, <, >, <=, >=, &&, ||, !
 Delimiters: (, ), {, }, ;, ,
 Literals: INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL
@@ -35,8 +35,8 @@ Stmt → DeclStmt
      | AssignStmt
      | IfStmt
      | LoopStmt
-     | PrintStmt
-     | InputStmt
+     | ShowStmt
+     | TellStmt
      | ReturnStmt
      | Block
 
@@ -66,14 +66,14 @@ LoopStmt → 'loop' 'from' IDENTIFIER '=' Expr 'to' Expr 'step' Expr Block
          | 'loop' 'from' IDENTIFIER 'to' Expr Block
          | 'loop' '(' Condition ')' Block
 
-PrintStmt → 'print' ExprList ';'
+ShowStmt → 'show' ExprList ';'
 
 ExprList → Expr ExprListTail
 
 ExprListTail → ',' Expr ExprListTail
              | ε
 
-InputStmt → 'input' IDENTIFIER ';'
+TellStmt → 'tell' IDENTIFIER ';'
 
 ReturnStmt → 'return' Expr ';'
            | 'return' ';'
@@ -128,26 +128,26 @@ INITIALIZATION RULES:
 - Declaration only: int x;           → x is uninitialized
 - Declaration + init: int x = 5;     → x is initialized
 - Later assignment: x = 10;          → x becomes initialized
-- Using uninitialized: print x;      → ERROR if x not initialized
+- Using uninitialized: show x;       → ERROR if x not initialized
 - Loop requirement: loop from i to n → i must be initialized before loop
 
 EXAMPLES:
 int x;              // Declared but not initialized
 x = 10;             // Now initialized
-print x;            // OK: prints 10
+show x;             // OK: shows 10
 
 int y;
-print y;            // ERROR: y not initialized
+show y;             // ERROR: y not initialized
 
 int i;
 i = 0;
 loop from i to 5 {  // OK: i is initialized
-    print i;
+    show i;
 }
 
 int j;
 loop from j to 5 {  // ERROR: j not initialized
-    print j;
+    show j;
 }
 
 ================================================================================
@@ -171,13 +171,13 @@ int x = 10;        // Global scope
     int y = 30;    // Local to this block
     {
         int x = 40;  // Shadows global x
-        print x;     // Prints 40
+        show x;      // Shows 40
     }
-    print x;       // Prints 20 (global x was modified)
-    print y;       // Prints 30
+    show x;        // Shows 20 (global x was modified)
+    show y;        // Shows 30
 }
-print x;           // Prints 20
-// print y;        // ERROR: y not in scope
+show x;            // Shows 20
+// show y;         // ERROR: y not in scope
 
 ================================================================================
 FUNCTION SEMANTICS:
@@ -210,37 +210,42 @@ func int factorial(int n) {
 
 int result;
 result = factorial(5);
-print result;
+show result;
 
 // Void function (no return value)
-func void printMessage(int x) {
-    print x;
-    print x + 1;
+func void showMessage(int x) {
+    show x;
+    show x + 1;
 }
 
-printMessage(10);  // Prints 10, 11
+showMessage(10);  // Shows 10, 11
 
-PRINT STATEMENT EXAMPLES:
-// Print single value
-print x;
+SHOW STATEMENT EXAMPLES:
+// Show single value
+show x;
 
-// Print multiple values (comma-separated)
-print x, y, z;
+// Show multiple values (comma-separated)
+show x, y, z;
 
-// Print expressions
-print x + y, x * 2, z - 5;
+// Show expressions
+show x + y, x * 2, z - 5;
+
+TELL STATEMENT EXAMPLES:
+// Read input from user
+tell x;
+tell age;
 
 LOOP EXAMPLES:
 // Range-based loop (for-style)
 loop from i = 0 to 10 step 2 {
-    print i;  // Prints 0, 2, 4, 6, 8, 10
+    show i;  // Shows 0, 2, 4, 6, 8, 10
 }
 
 // Conditional loop (while-style)
 int x = 0;
 loop (x < 10) {
-    print x;
-    x = x + 1;  // Prints 0 to 9
+    show x;
+    x = x + 1;  // Shows 0 to 9
 }
 
 ================================================================================

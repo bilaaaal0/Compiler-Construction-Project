@@ -3,8 +3,8 @@
 
 int i = 0;
 
-loop(i<10)
-{
-    print i;
-    i = i + 1;
-}
+int end;
+tell end;
+
+show end;
+

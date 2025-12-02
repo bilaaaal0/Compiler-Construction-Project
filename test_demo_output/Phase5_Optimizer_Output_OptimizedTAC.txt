@@ -1,0 +1,93 @@
+FUNC_Factorial:
+IF_FALSE t0 GOTO L0
+GOTO L0
+L0:
+t2 = RETVAL
+MAIN:
+ALLOC score int
+score = 0
+ALLOC average float
+average = 0.0
+ALLOC count int
+count = 5
+i = 1
+L1:
+IF_FALSE t4 GOTO L2
+t5 = score + i
+score = t5
+t6 = i + 1
+i = t6
+GOTO L1
+L2:
+average = score
+PRINT score
+PRINT average
+t7 = score > 20
+IF_FALSE t7 GOTO L3
+PRINT 100
+GOTO L6
+L3:
+t8 = score > 15
+IF_FALSE t8 GOTO L4
+PRINT 200
+GOTO L6
+L4:
+t9 = score > 10
+IF_FALSE t9 GOTO L5
+PRINT 300
+GOTO L6
+L5:
+PRINT 400
+L6:
+ALLOC num int
+num = 0
+L7:
+t10 = num < 5
+IF_FALSE t10 GOTO L8
+IF_FALSE t11 GOTO L9
+PRINT 1000
+GOTO L11
+L9:
+IF_FALSE t12 GOTO L10
+PRINT 2000
+GOTO L11
+L10:
+PRINT num
+L11:
+t13 = num + 1
+num = t13
+GOTO L7
+L8:
+ALLOC x int
+x = 0
+x = 0
+L12:
+IF_FALSE t14 GOTO L13
+ALLOC y int
+y = 0
+y = 0
+L14:
+IF_FALSE t15 GOTO L15
+IF_FALSE t16 GOTO L16
+PRINT 9999
+GOTO L18
+L16:
+t17 = x > y
+IF_FALSE t17 GOTO L17
+PRINT x
+GOTO L18
+L17:
+PRINT y
+L18:
+t18 = y + 1
+y = t18
+GOTO L14
+L15:
+t19 = x + 1
+x = t19
+GOTO L12
+L13:
+ALLOC fact int
+t20 = RETVAL
+fact = t20
+PRINT fact

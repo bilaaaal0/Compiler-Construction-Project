@@ -1,0 +1,205 @@
+================================================================================
+                         LR(0) CONFLICTS SUMMARY
+================================================================================
+
+Grammar Analysis Date: November 30, 2025
+Result: NOT LR(0) - 3 Conflicts Found
+
+================================================================================
+CONFLICT #1
+================================================================================
+
+State:         41
+Symbol:        '('
+Conflict Type: shift-reduce
+
+Action 1:      r23 (Reduce by production 23)
+Action 2:      s68 (Shift to state 68)
+
+Problem:
+  In state 43, when the parser sees '(', it faces a dilemma:
+  - Should it REDUCE using production 23?
+  - Or should it SHIFT '(' and move to state 65?
+  
+  This conflict likely occurs in the Factor production where:
+  - Factor → IDENTIFIER (production 23)
+  - Factor → '(' Expr ')' (another production)
+  
+  The parser cannot distinguish between:
+  1. An identifier that should be reduced
+  2. The start of a parenthesized expression
+
+Why LR(0) Cannot Resolve:
+  LR(0) has no lookahead. It cannot see that '(' follows an identifier
+  to determine if this is a function call or if the '(' starts a new
+  expression. This requires at least 1 token of lookahead.
+
+================================================================================
+CONFLICT #2
+================================================================================
+
+State:         100
+Symbol:        '&&'
+Conflict Type: shift-reduce
+
+Action 1:      r8 (Reduce by production 8)
+Action 2:      s103 (Shift to state 103)
+
+Problem:
+  In state 105, when the parser sees '&&', it faces a dilemma:
+  - Should it REDUCE using production 8?
+  - Or should it SHIFT '&&' and move to state 103?
+  
+  This conflict arises from the Condition production:
+  - Condition → Expr RelOp Expr (production 8)
+  - Condition → Condition LogicOp Condition (another production)
+  
+  The parser cannot determine whether to:
+  1. Reduce the current condition
+  2. Continue parsing to include the logical operator
+
+Why LR(0) Cannot Resolve:
+  This is a classic operator precedence/associativity issue. The grammar
+  has left recursion in Condition, and LR(0) cannot determine when to
+  stop reducing and when to continue parsing logical operators.
+
+Example Ambiguity:
+  Input: "x == y && z == w"
+  
+  After parsing "x == y", the parser sees "&&":
+  - Reduce "x == y" to Condition, then shift "&&"?
+  - Or is there another interpretation?
+  
+  Without lookahead, LR(0) cannot make this decision correctly.
+
+================================================================================
+CONFLICT #3
+================================================================================
+
+State:         132
+Symbol:        '&&'
+Conflict Type: shift-reduce
+
+Action 1:      r7 (Reduce by production 7)
+Action 2:      s103 (Shift to state 103)
+
+Problem:
+  Similar to Conflict #2, in state 131, when the parser sees '&&':
+  - Should it REDUCE using production 7?
+  - Or should it SHIFT '&&' and move to state 103?
+  
+  This is another instance of the Condition/LogicOp conflict, occurring
+  in a different state but with the same underlying issue.
+
+Why LR(0) Cannot Resolve:
+  Same reason as Conflict #2 - the grammar structure requires lookahead
+  to properly handle logical operators in conditions.
+
+================================================================================
+PARSING TABLE ENTRIES WITH CONFLICTS
+================================================================================
+
+ACTION[43, '(']:
+  r23 / s65
+
+ACTION[105, '&&']:
+  r8 / s103
+
+ACTION[131, '&&']:
+  r7 / s103
+
+================================================================================
+CONFLICT PATTERNS
+================================================================================
+
+Pattern 1: Factor/Expression Ambiguity (Conflict #1)
+  - Occurs when parsing identifiers and expressions
+  - Common in languages with function calls and parenthesized expressions
+  - Requires lookahead to distinguish contexts
+
+Pattern 2: Operator Precedence/Associativity (Conflicts #2, #3)
+  - Occurs with binary operators (especially logical operators)
+  - Left-recursive productions create reduce/shift ambiguity
+  - Requires lookahead to determine when to reduce
+
+================================================================================
+WHY THESE CONFLICTS MATTER
+================================================================================
+
+LR(0) parsers are deterministic and cannot handle ambiguity. When a conflict
+occurs, the parser cannot proceed without additional information.
+
+In practice:
+- Shift-reduce conflicts often indicate precedence/associativity issues
+- LR(0) is too restrictive for most programming languages
+- More powerful parsers (SLR, LALR, LR) can resolve these conflicts
+
+================================================================================
+RESOLUTION STRATEGIES
+================================================================================
+
+Strategy 1: Use SLR(1) Parser
+  - Adds FOLLOW set information to reduce decisions
+  - May resolve all three conflicts
+  - Minimal increase in complexity
+
+Strategy 2: Use LALR(1) Parser
+  - Uses lookahead sets for more precise decisions
+  - Very likely to resolve all conflicts
+  - Industry standard (used in Yacc, Bison)
+
+Strategy 3: Use LR(1) Parser
+  - Most powerful LR parser
+  - Will definitely resolve these conflicts
+  - May generate many more states
+
+Strategy 4: Modify Grammar
+  - Eliminate left recursion in Condition
+  - Factor out ambiguous productions
+  - May make grammar less natural
+
+Strategy 5: Use GLR Parser
+  - Handles ambiguous grammars
+  - Explores multiple parse paths
+  - More complex but very powerful
+
+================================================================================
+RECOMMENDED APPROACH
+================================================================================
+
+For this grammar, we recommend:
+
+1. **First Choice: LALR(1) Parser**
+   - Balances power and efficiency
+   - Widely used and well-understood
+   - Should resolve all conflicts
+   - Tools available (Yacc, Bison, etc.)
+
+2. **Second Choice: SLR(1) Parser**
+   - Simpler than LALR(1)
+   - May be sufficient for this grammar
+   - Good learning tool
+
+3. **Avoid: Modifying Grammar**
+   - Would require significant restructuring
+   - May make language less intuitive
+   - Not worth the effort for LR(0) compatibility
+
+================================================================================
+COMPARISON: LR(0) vs. SLR(1) vs. LALR(1) vs. LR(1)
+================================================================================
+
+| Parser  | Lookahead | Power | States | Typical Use |
+|---------|-----------|-------|--------|-------------|
+| LR(0)   | None      | Low   | Fewer  | Simple grammars only |
+| SLR(1)  | FOLLOW    | Medium| Fewer  | Educational, simple languages |
+| LALR(1) | Lookahead | High  | Fewer  | Production compilers (Yacc) |
+| LR(1)   | Lookahead | Highest| Many  | Complex grammars |
+
+For this grammar:
+- LR(0): ❌ 3 conflicts
+- SLR(1): ❓ Likely to work (needs analysis)
+- LALR(1): ✅ Very likely to work
+- LR(1): ✅ Guaranteed to work
+
+================================================================================

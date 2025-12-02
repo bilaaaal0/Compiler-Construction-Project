@@ -19,8 +19,8 @@ class TokenType(Enum):
     FROM = auto()
     TO = auto()
     STEP = auto()
-    PRINT = auto()
-    INPUT = auto()
+    SHOW = auto()
+    TELL = auto()
     RETURN = auto()
     FUNC = auto()
     
@@ -90,8 +90,8 @@ class Lexer:
             'from': TokenType.FROM,
             'to': TokenType.TO,
             'step': TokenType.STEP,
-            'print': TokenType.PRINT,
-            'input': TokenType.INPUT,
+            'show': TokenType.SHOW,
+            'tell': TokenType.TELL,
             'return': TokenType.RETURN,
             'func': TokenType.FUNC,
         }

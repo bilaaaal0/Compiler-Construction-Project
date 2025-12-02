@@ -1,0 +1,103 @@
+================================================================================
+                    LL(1) ANALYSIS - QUICK REFERENCE
+================================================================================
+
+RESULT: ❌ NOT LL(1)
+
+CONFLICTS: 2
+
+================================================================================
+CONFLICT DETAILS
+================================================================================
+
+┌─────────────────┬──────────────┬────────────────────────────────────────────┐
+│ Non-Terminal    │ Terminal     │ Conflicting Productions                    │
+├─────────────────┼──────────────┼────────────────────────────────────────────┤
+│ Factor          │ IDENTIFIER   │ 1. Factor → IDENTIFIER                     │
+│                 │              │ 2. Factor → FunctionCall                   │
+├─────────────────┼──────────────┼────────────────────────────────────────────┤
+│ Condition       │ '('          │ 1. Condition → Expr RelOp Expr Condition'  │
+│                 │              │ 2. Condition → '(' Condition ')' Condition'│
+└─────────────────┴──────────────┴────────────────────────────────────────────┘
+
+================================================================================
+TRANSFORMATIONS APPLIED
+================================================================================
+
+✓ Left Recursion Elimination
+  - Eliminated in: Condition
+
+✓ Left Factoring
+  - Factored: DeclStmt, LoopStmt, ReturnStmt, ArgList
+  - Multiple iterations performed
+
+================================================================================
+COMPUTED SETS
+================================================================================
+
+NULLABLE:  14 non-terminals
+FIRST:     Computed for 42 non-terminals
+FOLLOW:    Computed for 42 non-terminals
+
+================================================================================
+PARSING TABLE
+================================================================================
+
+Format:
+  - Filled cells: "NonTerminal → production"
+  - Empty cells: "-"
+  - Conflicts: "A→α / A→β" (highlighted in RED in Excel)
+
+================================================================================
+FILES GENERATED
+================================================================================
+
+1. grammar_analysis.xlsx
+   └─ 7 sheets with complete analysis
+   
+2. ANALYSIS_RESULT.txt
+   └─ Detailed analysis report
+   
+3. CONFLICTS_SUMMARY.txt
+   └─ In-depth explanation of conflicts
+   
+4. README.md
+   └─ Usage guide
+   
+5. QUICK_REFERENCE.txt
+   └─ This file
+
+================================================================================
+EXCEL SHEETS
+================================================================================
+
+Sheet 1: Result
+  - LL(1) determination: NO
+  - Conflict count: 2
+  - Detailed conflict table with:
+    * Non-Terminal column
+    * Terminal column
+    * Production 1 column
+    * Production 2 column
+
+Sheet 2: Original Grammar
+  - Grammar before transformations
+
+Sheet 3: Transformed Grammar
+  - Grammar after left recursion elimination and left factoring
+
+Sheet 4: NULLABLE
+  - List of nullable non-terminals
+
+Sheet 5: FIRST Sets
+  - FIRST set for each non-terminal
+
+Sheet 6: FOLLOW Sets
+  - FOLLOW set for each non-terminal
+
+Sheet 7: Parsing Table
+  - Complete predictive parsing table
+  - Conflicts in RED
+  - Empty cells marked with "-"
+
+================================================================================

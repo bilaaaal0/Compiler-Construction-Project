@@ -86,9 +86,9 @@ class Parser:
             return self.parse_if_stmt()
         elif token_type == TokenType.LOOP:
             return self.parse_loop_stmt()
-        elif token_type == TokenType.PRINT:
+        elif token_type == TokenType.SHOW:
             return self.parse_print_stmt()
-        elif token_type == TokenType.INPUT:
+        elif token_type == TokenType.TELL:
             return self.parse_input_stmt()
         elif token_type == TokenType.RETURN:
             return self.parse_return_stmt()
@@ -161,7 +161,7 @@ class Parser:
     
     def parse_print_stmt(self):
         line = self.current_token.line
-        self.advance()  # consume 'print'
+        self.advance()  # consume 'show'
         
         # Parse expression list (comma-separated)
         expressions = []
@@ -176,7 +176,7 @@ class Parser:
     
     def parse_input_stmt(self):
         line = self.current_token.line
-        self.advance()  # consume 'input'
+        self.advance()  # consume 'tell'
         
         if not self.expect(TokenType.IDENTIFIER):
             return None

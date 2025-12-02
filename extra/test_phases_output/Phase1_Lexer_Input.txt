@@ -1,8 +1,0 @@
-// Test program to see all phases
-int x;
-int y;
-x = 10;
-y = x + 5;
-if (y > 10) {
-    print y;
-}

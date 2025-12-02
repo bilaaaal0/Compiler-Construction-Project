@@ -1,9 +1,0 @@
-// Simple loop test
-int sum;
-sum = 0;
-int i=1;
-loop from i = 1 to 5 {
-    sum = sum + i;
-}
-
-print sum;

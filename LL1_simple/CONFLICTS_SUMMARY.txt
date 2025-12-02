@@ -1,0 +1,108 @@
+================================================================================
+                         CONFLICTS SUMMARY
+================================================================================
+
+Grammar Analysis Date: November 30, 2025
+Result: NOT LL(1) - 2 Conflicts Found
+
+================================================================================
+CONFLICT #1
+================================================================================
+
+Non-Terminal:  Factor
+Terminal:      IDENTIFIER
+
+Production 1:  Factor → IDENTIFIER
+Production 2:  Factor → FunctionCall
+
+Where FunctionCall is defined as:
+  FunctionCall → IDENTIFIER '(' ArgList ')'
+
+Problem:
+  When the parser sees IDENTIFIER while parsing Factor, it cannot decide
+  whether to use:
+  - Factor → IDENTIFIER (for a variable reference)
+  - Factor → FunctionCall (for a function call)
+  
+  Both productions start with IDENTIFIER, requiring the parser to look ahead
+  to see if '(' follows, which violates LL(1) constraints.
+
+Example Ambiguity:
+  Input: "x"      → Should use Factor → IDENTIFIER
+  Input: "x(...)" → Should use Factor → FunctionCall
+  
+  The parser needs to see beyond IDENTIFIER to make the decision.
+
+================================================================================
+CONFLICT #2
+================================================================================
+
+Non-Terminal:  Condition
+Terminal:      '('
+
+Production 1:  Condition → Expr RelOp Expr Condition'
+Production 2:  Condition → '(' Condition ')' Condition'
+
+Where:
+  Expr can start with '(' (from Factor → '(' Expr ')')
+  Condition' → LogicOp Condition Condition' | ε
+
+Problem:
+  When the parser sees '(' while parsing Condition, it cannot decide whether:
+  - It's the start of an Expr (which can be a parenthesized expression)
+  - It's a parenthesized Condition
+  
+  Both productions can start with '(', creating ambiguity.
+
+Example Ambiguity:
+  Input: "(x + y) == z"     → Should use Condition → Expr RelOp Expr Condition'
+                               where Expr starts with '(' Expr ')'
+  Input: "(x == y) && z"    → Should use Condition → '(' Condition ')' Condition'
+  
+  The parser cannot distinguish these cases with only one token lookahead.
+
+================================================================================
+PARSING TABLE ENTRIES WITH CONFLICTS
+================================================================================
+
+Table[Factor, IDENTIFIER]:
+  Factor→IDENTIFIER / Factor→FunctionCall
+
+Table[Condition, '(']:
+  Condition→Expr RelOp Expr Condition' / Condition→'(' Condition ')' Condition'
+
+================================================================================
+WHY THIS MATTERS
+================================================================================
+
+LL(1) parsers require that for any non-terminal A and lookahead symbol a,
+there is at most ONE production to choose. These conflicts violate this
+requirement.
+
+The grammar can still be parsed using:
+  ✓ LL(k) parser with k > 1 (look ahead more than 1 token)
+  ✓ LR parser (SLR, LALR, LR(1))
+  ✓ Recursive descent parser with backtracking
+  ✓ Predictive parser with conflict resolution heuristics
+
+================================================================================
+RESOLUTION STRATEGIES (if LL(1) is required)
+================================================================================
+
+For Conflict #1 (Factor):
+  Option A: Merge productions and handle function calls differently
+    Factor → IDENTIFIER FactorTail
+    FactorTail → '(' ArgList ')' | ε
+  
+  Option B: Use left factoring at a higher level
+    (This would require restructuring expression parsing)
+
+For Conflict #2 (Condition):
+  Option A: Eliminate parenthesized conditions, rely only on expression parens
+  Option B: Restructure to make the distinction clear at first token
+  Option C: Use precedence climbing or operator precedence parsing
+
+Note: These changes may significantly alter the grammar structure and may
+not preserve the original language semantics.
+
+================================================================================
