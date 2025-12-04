@@ -32,3 +32,23 @@ E → F
 F → id
   | id '(' ')'
 """
+
+grammar2 = """Start → Decl
+
+Decl → Assign :
+     | Test :
+
+Assign → Val OpList
+
+OpList → * Val OpList
+       | ε
+
+Val → var
+    | func
+    | [ Assign ]
+
+func → var < >
+
+Test → Assign >= Assign
+     | { Test }
+"""
