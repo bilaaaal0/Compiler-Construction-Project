@@ -1,0 +1,49 @@
+// ===== TEST 1: BASIC FEATURES =====
+
+// Variable declarations (with and without initialization)
+int x = 10;
+int y;
+float pi = 3.14;
+char grade = 'A';
+
+// Assignment to uninitialized variable
+y = 5;
+
+// Multiple values in show (comma-separated - unique to this language)
+show x, y, pi;
+
+// Type promotion: int + float = float (widening allowed)
+float result = x + pi;
+show result;
+
+// Character to int promotion
+int code = grade;
+show code;
+
+// If-elif-else (note: elif, not else-if)
+if (x > y) {
+    show 1;
+} elif (x == y) {
+    show 0;
+} else {
+    show -1;
+}
+
+// Conditional loop (while-style): loop (condition)
+int counter = 0;
+loop (counter < 3) {
+    show counter;
+    counter = counter + 1;
+}
+
+// Range-based loop with step: loop from...to...step
+loop from counter = 0 to 6 step 2 {
+    show counter;
+}
+
+// Block scope and variable shadowing
+{
+    int x = 100;  // Shadows outer x
+    show x;       // Shows 100
+}
+show x;           // Shows 10 (original x)

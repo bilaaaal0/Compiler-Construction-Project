@@ -1,0 +1,43 @@
+// ===== TEST 2: FUNCTIONS & RECURSION =====
+
+// Function declarations (must come before main code)
+func int factorial(int n) {
+    // Recursion test
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+func int add(int a, int b) {
+    // Simple function with return
+    return a + b;
+}
+
+func void printMessage(int num) {
+    // Void function (no return value)
+    show num;
+    show num * 2;
+}
+
+// ===== MAIN PROGRAM =====
+
+// Function calls with return values
+int result = factorial(5);
+show result;
+
+int sum = add(10, 20);
+show sum;
+
+// Void function call
+printMessage(42);
+
+// Nested function calls
+int nested = add(factorial(3), factorial(2));
+show nested;
+
+// Loop with function call
+int i = 0;
+loop from i = 1 to 4 {
+    show factorial(i);
+}

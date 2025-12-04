@@ -104,11 +104,11 @@ class Optimizer:
         
         # First pass: collect all used variables
         for instruction in code:
-            # Variables in control flow (IF_FALSE, GOTO, PRINT, READ) - check FIRST
-            if any(keyword in instruction for keyword in ['IF_FALSE', 'GOTO', 'PRINT', 'READ']):
+            # Variables in control flow, PUSH, RETURN, PRINT, READ
+            if any(keyword in instruction for keyword in ['IF_FALSE', 'GOTO', 'PRINT', 'READ', 'PUSH', 'RETURN']):
                 tokens = re.findall(r'\b[a-zA-Z_]\w*\b', instruction)
                 # Filter out keywords
-                keywords = {'IF_FALSE', 'GOTO', 'PRINT', 'READ', 'ALLOC', 'ENTER_SCOPE', 'EXIT_SCOPE', 'PARAM', 'PUSH', 'CALL', 'RETURN'}
+                keywords = {'IF_FALSE', 'GOTO', 'PRINT', 'READ', 'ALLOC', 'ENTER_SCOPE', 'EXIT_SCOPE', 'PARAM', 'PUSH', 'CALL', 'RETURN', 'RETVAL'}
                 for token in tokens:
                     if token not in keywords:
                         used_vars.add(token)

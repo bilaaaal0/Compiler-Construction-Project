@@ -1,0 +1,43 @@
+// ===== TEST 3: ERROR DETECTION =====
+// This file contains intentional errors to test compiler
+
+// ERROR 1: Using uninitialized variable
+int x;
+show x;  // ERROR: x not initialized
+
+// ERROR 2: Type mismatch (narrowing not allowed)
+float f = 3.14;
+int n = f;  // ERROR: cannot assign float to int
+
+// ERROR 3: Loop with uninitialized variable
+int j;
+loop from j to 5 {  // ERROR: j not initialized
+    show j;
+}
+
+// ERROR 4: Variable not declared
+show undeclared;  // ERROR: undeclared not declared
+
+// ERROR 5: Function without return statement
+func int noReturn(int x) {
+    show x;
+    // ERROR: missing return statement
+}
+
+// ERROR 6: Void function returning value
+func void badVoid() {
+    return 5;  // ERROR: void cannot return value
+}
+
+// ERROR 7: Variable out of scope
+{
+    int local = 10;
+}
+show local;  // ERROR: local not in scope
+
+// ERROR 8: Wrong number of arguments
+func int multiply(int a, int b) {
+    return a * b;
+}
+
+int result = multiply(5);  // ERROR: expects 2 args, got 1

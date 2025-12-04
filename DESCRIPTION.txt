@@ -1,0 +1,144 @@
+================================================================================
+                    MINI COMPILER - PROJECT DESCRIPTION
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+
+A complete educational compiler implementing all six classical compilation phases
+from scratch. Translates a custom high-level language into pseudo-assembly code
+with optimization. Built without parser generators for maximum educational value.
+
+
+LANGUAGE SCOPE
+================================================================================
+
+WHAT IT HANDLES:
+
+This compiler supports a statically-typed imperative language with three data 
+types (int, float, char), standard arithmetic and logical operators, control 
+flow via if-else statements, modern loop syntax (loop from...to), and full 
+function support including recursion. The type system enforces strict type 
+checking with automatic widening (int→float) but forbids narrowing conversions 
+(float→int). Variables must be explicitly typed and initialized before use. 
+Functions must be declared before the main code (Pascal-style) and support 
+parameters, return values, and void types. I/O is handled through 'show' and 
+'read' keywords. The language supports nested expressions, block scoping, and 
+complex function calls including recursion and nested invocations.
+
+WHAT IT DOES NOT HANDLE:
+
+The language intentionally excludes arrays, pointers, strings (only single char), 
+user-defined types (structs/classes), dynamic memory allocation, preprocessor 
+directives, standard library functions, type inference, break/continue statements, 
+while loops, switch/case statements, and const variables. All variables are 
+statically allocated with fixed memory layout at compile time.
+
+KEY DIFFERENCES FROM OTHER LANGUAGES:
+
+• Modern loop syntax: "loop from i = 1 to 10" instead of C-style for loops
+• Mandatory initialization tracking: using uninitialized variables is a compile error
+• Function-first structure: all functions declared before main code (like Pascal)
+• Strict type safety: narrowing conversions are errors, not warnings
+• Educational TAC output: generates readable Three-Address Code for all phases
+
+
+MAIN COMMANDS
+================================================================================
+
+1. Compile a source file:
+   python compiler.py <source_file.txt>
+   
+   Creates an output folder with all 6 phase outputs and compilation summary.
+
+2. Interactive mode:
+   python compiler.py --interactive
+   
+   Enter code line by line, type 'END' to compile.
+
+3. Run TAC interpreter:
+   python interpreter.py <output_folder>/Phase5_Optimizer_Output_OptimizedTAC.txt
+   
+   Executes the optimized TAC code and shows program output.
+
+
+EXAMPLE PROGRAMS
+================================================================================
+
+EXAMPLE 1: Variables and Loops
+--------------------------------------------------------------------------------
+// Calculate factorial using loop
+int n = 5;
+int factorial = 1;
+
+loop from i = 1 to n {
+    factorial = factorial * i;
+}
+
+show factorial;  // Output: 120
+
+
+EXAMPLE 2: Functions with Recursion
+--------------------------------------------------------------------------------
+// Function declarations must come first
+func int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+func int add(int a, int b) {
+    return a + b;
+}
+
+// Main program
+int result = factorial(5);
+show result;  // Output: 120
+
+// Nested function calls
+int nested = add(factorial(3), factorial(2));
+show nested;  // Output: 8
+
+
+EXAMPLE 3: Control Flow and Type Coercion
+--------------------------------------------------------------------------------
+int score = 85;
+
+if (score >= 90) {
+    show 1;  // A grade
+} else {
+    if (score >= 80) {
+        show 2;  // B grade
+    } else {
+        show 3;  // C grade
+    }
+}
+// Output: 2
+
+// Type coercion
+int x = 10;
+float pi = 3.14;
+float result = x + pi;  // int promoted to float
+show result;  // Output: 13.14
+
+
+COMPILATION PHASES OUTPUT
+================================================================================
+
+For input: int x = 5 + 3; show x;
+
+Phase 1 (Tokens):     11 tokens generated
+Phase 2 (AST):        DeclStmt and PrintStmt nodes
+Phase 3 (Symbol):     x: int, initialized, offset 16
+Phase 4 (TAC):        t0 = 5 + 3; x = t0; PRINT x
+Phase 5 (Optimized):  x = 8; PRINT x  ← Constant folding!
+Phase 6 (Assembly):   LOAD_IMM 8; STORE x; LOAD x; PRINT
+
+Interpreter Output:   8
+
+
+================================================================================
+Built as a semester project for Compiler Construction course.
+All code written from scratch without parser generators.
+================================================================================
