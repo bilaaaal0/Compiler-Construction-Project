@@ -1,0 +1,44 @@
+MAIN:
+ALLOC sum int
+sum = 0
+i = 1
+L0:
+t0 = i <= 10
+IF_FALSE t0 GOTO L1
+ENTER_SCOPE
+t1 = sum + i
+sum = t1
+EXIT_SCOPE
+t2 = i + 1
+i = t2
+GOTO L0
+L1:
+PRINT sum
+ALLOC result int
+result = 0
+j = 0
+L2:
+t3 = j <= 20
+IF_FALSE t3 GOTO L3
+ENTER_SCOPE
+t4 = result + j
+result = t4
+EXIT_SCOPE
+t5 = j + 2
+j = t5
+GOTO L2
+L3:
+PRINT result
+ALLOC counter int
+counter = 0
+L4:
+t6 = counter < 5
+IF_FALSE t6 GOTO L5
+ENTER_SCOPE
+PRINT counter
+t7 = counter + 1
+counter = t7
+EXIT_SCOPE
+GOTO L4
+L5:
+END_MAIN

@@ -1,0 +1,36 @@
+// Test 3: Function Declaration and Calls
+// Tests functions with parameters and recursion
+
+// Function to add two numbers
+func int add(int a, int b) {
+    int sum;
+    sum = a + b;
+    return sum;
+}
+
+// Recursive factorial function
+func int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    int temp;
+    temp = n - 1;
+    return n * factorial(temp);
+}
+
+// Void function (no return value)
+func void printMessage(int x) {
+    show x;
+    show x + 1;
+}
+
+// Main program - call functions
+int result1;
+result1 = add(5, 3);
+show result1;
+
+int result2;
+result2 = factorial(5);
+show result2;
+
+printMessage(10);

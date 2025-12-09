@@ -1,0 +1,31 @@
+// Test 1: If-Elif-Else Statement
+// Tests conditional branching
+
+int score;
+score = 85;
+
+if (score >= 90) {
+    show 1;
+} elif (score >= 80) {
+    show 2;
+} elif (score >= 70) {
+    show 3;
+} else {
+    show 0;
+}
+
+// Nested if-else
+int x;
+int y;
+x = 10;
+y = 20;
+
+if (x < y) {
+    if (x > 5) {
+        show x;
+    } else {
+        show 0;
+    }
+} else {
+    show y;
+}

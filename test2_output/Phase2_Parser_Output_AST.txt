@@ -1,0 +1,180 @@
+======================================================================
+PHASE 2 OUTPUT: ABSTRACT SYNTAX TREE (AST)
+======================================================================
+
+Program
+  statements:
+    DeclStmt
+      var_type: int
+      identifier: sum
+      init_value: None
+      line: 5
+    AssignStmt
+      identifier: sum
+      expression:
+        Literal
+          value: 0
+          lit_type: int
+          line: 6
+      line: 6
+    LoopStmt
+      var_name: i
+      start_expr:
+        Literal
+          value: 1
+          lit_type: int
+          line: 8
+      end_expr:
+        Literal
+          value: 10
+          lit_type: int
+          line: 8
+      step_expr: None
+      block:
+        Block
+          statements:
+            AssignStmt
+              identifier: sum
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: sum
+                      line: 9
+                      var_type: None
+                  operator: +
+                  right:
+                    Identifier
+                      name: i
+                      line: 9
+                      var_type: None
+                  line: 9
+                  result_type: None
+              line: 9
+      line: 8
+      use_existing_var: False
+    PrintStmt
+      expressions:
+        Identifier
+          name: sum
+          line: 12
+          var_type: None
+      line: 12
+    DeclStmt
+      var_type: int
+      identifier: result
+      init_value: None
+      line: 15
+    AssignStmt
+      identifier: result
+      expression:
+        Literal
+          value: 0
+          lit_type: int
+          line: 16
+      line: 16
+    LoopStmt
+      var_name: j
+      start_expr:
+        Literal
+          value: 0
+          lit_type: int
+          line: 18
+      end_expr:
+        Literal
+          value: 20
+          lit_type: int
+          line: 18
+      step_expr:
+        Literal
+          value: 2
+          lit_type: int
+          line: 18
+      block:
+        Block
+          statements:
+            AssignStmt
+              identifier: result
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: result
+                      line: 19
+                      var_type: None
+                  operator: +
+                  right:
+                    Identifier
+                      name: j
+                      line: 19
+                      var_type: None
+                  line: 19
+                  result_type: None
+              line: 19
+      line: 18
+      use_existing_var: False
+    PrintStmt
+      expressions:
+        Identifier
+          name: result
+          line: 22
+          var_type: None
+      line: 22
+    DeclStmt
+      var_type: int
+      identifier: counter
+      init_value: None
+      line: 25
+    AssignStmt
+      identifier: counter
+      expression:
+        Literal
+          value: 0
+          lit_type: int
+          line: 26
+      line: 26
+    ConditionalLoopStmt
+      condition:
+        BinaryOp
+          left:
+            Identifier
+              name: counter
+              line: 28
+              var_type: None
+          operator: <
+          right:
+            Literal
+              value: 5
+              lit_type: int
+              line: 28
+          line: 28
+          result_type: None
+      block:
+        Block
+          statements:
+            PrintStmt
+              expressions:
+                Identifier
+                  name: counter
+                  line: 29
+                  var_type: None
+              line: 29
+            AssignStmt
+              identifier: counter
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: counter
+                      line: 30
+                      var_type: None
+                  operator: +
+                  right:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 30
+                  line: 30
+                  result_type: None
+              line: 30
+      line: 28

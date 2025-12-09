@@ -1,0 +1,59 @@
+FUNC_add:
+PARAM a 0
+PARAM b 1
+ENTER_SCOPE
+ALLOC sum int
+t0 = a + b
+sum = t0
+RETURN sum
+EXIT_SCOPE
+RETURN 0
+END_FUNC_add
+FUNC_factorial:
+PARAM n 0
+ENTER_SCOPE
+t1 = n <= 1
+IF_FALSE t1 GOTO L0
+ENTER_SCOPE
+RETURN 1
+EXIT_SCOPE
+GOTO L0
+L0:
+ALLOC temp int
+t2 = n - 1
+temp = t2
+PUSH temp
+CALL FUNC_factorial 1
+t3 = RETVAL
+t4 = n * t3
+RETURN t4
+EXIT_SCOPE
+RETURN 0
+END_FUNC_factorial
+FUNC_printMessage:
+PARAM x 0
+ENTER_SCOPE
+PRINT x
+t5 = x + 1
+PRINT t5
+EXIT_SCOPE
+RETURN 0
+END_FUNC_printMessage
+MAIN:
+ALLOC result1 int
+PUSH 3
+PUSH 5
+CALL FUNC_add 2
+t6 = RETVAL
+result1 = t6
+PRINT result1
+ALLOC result2 int
+PUSH 5
+CALL FUNC_factorial 1
+t7 = RETVAL
+result2 = t7
+PRINT result2
+PUSH 10
+CALL FUNC_printMessage 1
+t8 = RETVAL
+END_MAIN

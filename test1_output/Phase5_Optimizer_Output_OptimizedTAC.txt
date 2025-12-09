@@ -1,0 +1,38 @@
+MAIN:
+ALLOC score int
+score = 85
+t0 = score >= 90
+IF_FALSE t0 GOTO L0
+PRINT 1
+GOTO L3
+L0:
+t1 = score >= 80
+IF_FALSE t1 GOTO L1
+PRINT 2
+GOTO L3
+L1:
+t2 = score >= 70
+IF_FALSE t2 GOTO L2
+PRINT 3
+GOTO L3
+L2:
+PRINT 0
+L3:
+ALLOC x int
+ALLOC y int
+x = 10
+y = 20
+t3 = x < y
+IF_FALSE t3 GOTO L4
+t4 = x > 5
+IF_FALSE t4 GOTO L6
+PRINT x
+GOTO L7
+L6:
+PRINT 0
+L7:
+GOTO L5
+L4:
+PRINT y
+L5:
+END_MAIN

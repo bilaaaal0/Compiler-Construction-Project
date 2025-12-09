@@ -1,0 +1,31 @@
+// Test 2: Loop Statements
+// Tests range-based and conditional loops
+
+// Range-based loop with initialization
+int sum;
+sum = 0;
+
+loop from i = 1 to 10 {
+    sum = sum + i;
+}
+
+show sum;
+
+// Range-based loop with step
+int result;
+result = 0;
+
+loop from j = 0 to 20 step 2 {
+    result = result + j;
+}
+
+show result;
+
+// Conditional loop (while-style)
+int counter;
+counter = 0;
+
+loop (counter < 5) {
+    show counter;
+    counter = counter + 1;
+}
