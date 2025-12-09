@@ -1,0 +1,7 @@
+MAIN:
+ALLOC i1 int
+i1 = 0
+ALLOC end int
+READ end
+PRINT end
+END_MAIN

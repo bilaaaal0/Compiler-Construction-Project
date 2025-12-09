@@ -1,0 +1,623 @@
+================================================================================
+                    LEXICAL RULES DOCUMENTATION
+                    PHASE 1: LEXICAL ANALYSIS
+================================================================================
+
+PROJECT: Mini Language Compiler
+LANGUAGE: Custom Domain-Specific Language (DSL)
+PURPOSE: Educational compiler demonstrating all 6 phases of compilation
+
+================================================================================
+                        1. TOKEN CATEGORIES
+================================================================================
+
+The lexer recognizes the following categories of tokens:
+
+1.1 KEYWORDS (Reserved Words)
+1.2 IDENTIFIERS
+1.3 LITERALS (Integer, Float, Character)
+1.4 OPERATORS (Arithmetic, Relational, Logical, Assignment)
+1.5 DELIMITERS (Punctuation)
+1.6 COMMENTS
+1.7 WHITESPACE (Ignored)
+
+================================================================================
+                        2. KEYWORDS (15 Total)
+================================================================================
+
+Keywords are reserved words that have special meaning in the language.
+They CANNOT be used as identifiers.
+
+2.1 DATA TYPE KEYWORDS:
+   ┌──────────┬─────────────────────────────────────────┐
+   │ Keyword  │ Description                             │
+   ├──────────┼─────────────────────────────────────────┤
+   │ int      │ Integer data type                       │
+   │ float    │ Floating-point data type                │
+   │ char     │ Character data type                     │
+   │ void     │ Void type (for functions with no return)│
+   └──────────┴─────────────────────────────────────────┘
+
+2.2 CONTROL FLOW KEYWORDS:
+   ┌──────────┬─────────────────────────────────────────┐
+   │ Keyword  │ Description                             │
+   ├──────────┼─────────────────────────────────────────┤
+   │ if       │ Conditional statement                   │
+   │ elif     │ Else-if (alternative condition)         │
+   │ else     │ Default case for conditional            │
+   │ loop     │ Loop construct (for/while style)        │
+   │ from     │ Loop start keyword                      │
+   │ to       │ Loop end keyword                        │
+   │ step     │ Loop increment keyword                  │
+   └──────────┴─────────────────────────────────────────┘
+
+2.3 I/O KEYWORDS:
+   ┌──────────┬─────────────────────────────────────────┐
+   │ Keyword  │ Description                             │
+   ├──────────┼─────────────────────────────────────────┤
+   │ show     │ Output statement (like print)           │
+   │ tell     │ Input statement (like read/scan)        │
+   └──────────┴─────────────────────────────────────────┘
+
+2.4 FUNCTION KEYWORDS:
+   ┌──────────┬─────────────────────────────────────────┐
+   │ Keyword  │ Description                             │
+   ├──────────┼─────────────────────────────────────────┤
+   │ func     │ Function declaration                    │
+   │ return   │ Return statement                        │
+   └──────────┴─────────────────────────────────────────┘
+
+REGULAR EXPRESSION FOR KEYWORDS:
+   int | float | char | void | if | elif | else | loop | from | to | 
+   step | show | tell | return | func
+
+RECOGNITION RULE:
+   Keywords are case-sensitive and must be matched exactly.
+   Example: 'if' is a keyword, but 'If' or 'IF' are identifiers.
+
+================================================================================
+                        3. IDENTIFIERS
+================================================================================
+
+Identifiers are user-defined names for variables, functions, etc.
+
+3.1 DEFINITION:
+   An identifier is a sequence of letters, digits, and underscores that:
+   - MUST start with a letter (a-z, A-Z) or underscore (_)
+   - Can contain letters, digits (0-9), and underscores
+   - CANNOT be a keyword
+   - Is case-sensitive
+
+3.2 REGULAR EXPRESSION:
+   [a-zA-Z_][a-zA-Z0-9_]*
+
+3.3 FORMAL DEFINITION:
+   IDENTIFIER → LETTER (LETTER | DIGIT | '_')*
+   LETTER     → 'a'..'z' | 'A'..'Z' | '_'
+   DIGIT      → '0'..'9'
+
+3.4 VALID EXAMPLES:
+   ✓ x
+   ✓ variable
+   ✓ myVar
+   ✓ _temp
+   ✓ counter123
+   ✓ sum_of_numbers
+   ✓ MAX_VALUE
+
+3.5 INVALID EXAMPLES:
+   ✗ 123abc        (starts with digit)
+   ✗ my-var        (contains hyphen)
+   ✗ int           (keyword)
+   ✗ $price        (contains special character)
+   ✗ my var        (contains space)
+
+3.6 DFA FOR IDENTIFIER RECOGNITION:
+
+   State 0 (Start):
+      - On letter or '_' → State 1 (Accept)
+      - On digit → Error
+      - On other → Error
+
+   State 1 (Accept):
+      - On letter, digit, or '_' → State 1 (Stay)
+      - On other → End (Accept)
+
+   Transition Table:
+   ┌────────┬────────┬────────┬────────┬────────┐
+   │ State  │ Letter │ Digit  │   _    │ Other  │
+   ├────────┼────────┼────────┼────────┼────────┤
+   │   0    │   1    │  Error │   1    │ Error  │
+   │   1    │   1    │   1    │   1    │ Accept │
+   └────────┴────────┴────────┴────────┴────────┘
+
+================================================================================
+                        4. LITERALS
+================================================================================
+
+4.1 INTEGER LITERALS:
+   
+   DEFINITION:
+      A sequence of one or more digits (0-9)
+   
+   REGULAR EXPRESSION:
+      [0-9]+
+   
+   FORMAL DEFINITION:
+      INTEGER_LITERAL → DIGIT+
+      DIGIT → '0'..'9'
+   
+   EXAMPLES:
+      ✓ 0
+      ✓ 42
+      ✓ 123
+      ✓ 999999
+   
+   DFA FOR INTEGER:
+      State 0 (Start):
+         - On digit → State 1 (Accept)
+         - On other → Error
+      
+      State 1 (Accept):
+         - On digit → State 1 (Stay)
+         - On '.' → Transition to FLOAT DFA
+         - On other → End (Accept)
+
+4.2 FLOAT LITERALS:
+   
+   DEFINITION:
+      A sequence of digits, followed by a decimal point, followed by digits
+   
+   REGULAR EXPRESSION:
+      [0-9]+ '.' [0-9]+
+   
+   FORMAL DEFINITION:
+      FLOAT_LITERAL → DIGIT+ '.' DIGIT+
+      DIGIT → '0'..'9'
+   
+   EXAMPLES:
+      ✓ 3.14
+      ✓ 0.5
+      ✓ 123.456
+      ✓ 99.99
+   
+   INVALID:
+      ✗ 3.          (no digits after decimal)
+      ✗ .14         (no digits before decimal)
+      ✗ 3.14.15     (multiple decimal points)
+   
+   DFA FOR FLOAT:
+      State 0 (Start):
+         - On digit → State 1
+         - On other → Error
+      
+      State 1:
+         - On digit → State 1 (Stay)
+         - On '.' → State 2
+         - On other → Accept as INTEGER
+      
+      State 2:
+         - On digit → State 3 (Accept)
+         - On other → Error
+      
+      State 3 (Accept):
+         - On digit → State 3 (Stay)
+         - On other → End (Accept as FLOAT)
+
+4.3 CHARACTER LITERALS:
+   
+   DEFINITION:
+      A single character enclosed in single quotes
+   
+   REGULAR EXPRESSION:
+      ' [any_character] '
+   
+   FORMAL DEFINITION:
+      CHAR_LITERAL → "'" CHARACTER "'"
+      CHARACTER → any printable character
+   
+   EXAMPLES:
+      ✓ 'a'
+      ✓ 'Z'
+      ✓ '5'
+      ✓ ' '  (space)
+      ✓ '!'
+   
+   INVALID:
+      ✗ 'ab'        (more than one character)
+      ✗ 'a          (unterminated)
+      ✗ ''          (empty)
+   
+   DFA FOR CHAR LITERAL:
+      State 0 (Start):
+         - On "'" → State 1
+         - On other → Error
+      
+      State 1:
+         - On any character → State 2
+         - On "'" → Error (empty char)
+      
+      State 2:
+         - On "'" → State 3 (Accept)
+         - On other → Error (too many chars)
+      
+      State 3 (Accept):
+         - End
+
+================================================================================
+                        5. OPERATORS
+================================================================================
+
+5.1 ARITHMETIC OPERATORS:
+   ┌──────────┬─────────┬──────────────────────────────┐
+   │ Operator │ Symbol  │ Description                  │
+   ├──────────┼─────────┼──────────────────────────────┤
+   │ PLUS     │    +    │ Addition                     │
+   │ MINUS    │    -    │ Subtraction / Unary negation │
+   │ MULTIPLY │    *    │ Multiplication               │
+   │ DIVIDE   │    /    │ Division                     │
+   │ MODULO   │    %    │ Modulus (remainder)          │
+   └──────────┴─────────┴──────────────────────────────┘
+
+5.2 RELATIONAL OPERATORS:
+   ┌──────────┬─────────┬──────────────────────────────┐
+   │ Operator │ Symbol  │ Description                  │
+   ├──────────┼─────────┼──────────────────────────────┤
+   │ EQ       │   ==    │ Equal to                     │
+   │ NEQ      │   !=    │ Not equal to                 │
+   │ LT       │    <    │ Less than                    │
+   │ GT       │    >    │ Greater than                 │
+   │ LTE      │   <=    │ Less than or equal to        │
+   │ GTE      │   >=    │ Greater than or equal to     │
+   └──────────┴─────────┴──────────────────────────────┘
+
+5.3 LOGICAL OPERATORS:
+   ┌──────────┬─────────┬──────────────────────────────┐
+   │ Operator │ Symbol  │ Description                  │
+   ├──────────┼─────────┼──────────────────────────────┤
+   │ AND      │   &&    │ Logical AND                  │
+   │ OR       │   ||    │ Logical OR                   │
+   │ NOT      │    !    │ Logical NOT                  │
+   └──────────┴─────────┴──────────────────────────────┘
+
+5.4 ASSIGNMENT OPERATOR:
+   ┌──────────┬─────────┬──────────────────────────────┐
+   │ Operator │ Symbol  │ Description                  │
+   ├──────────┼─────────┼──────────────────────────────┤
+   │ ASSIGN   │    =    │ Assignment                   │
+   └──────────┴─────────┴──────────────────────────────┘
+
+5.5 OPERATOR RECOGNITION RULES:
+
+   TWO-CHARACTER OPERATORS (Must be checked first):
+      ==  (Equal)
+      !=  (Not equal)
+      <=  (Less than or equal)
+      >=  (Greater than or equal)
+      &&  (Logical AND)
+      ||  (Logical OR)
+
+   SINGLE-CHARACTER OPERATORS:
+      +  -  *  /  %  =  <  >  !
+
+   RECOGNITION ALGORITHM:
+      1. Check if current char + next char form a 2-char operator
+      2. If yes, consume both characters
+      3. If no, check if current char is a 1-char operator
+      4. If yes, consume one character
+      5. If no, report error
+
+   EXAMPLE:
+      Input: "x == 5"
+      - See 'x' → IDENTIFIER
+      - See '=' → Check next char
+      - Next is '=' → Recognize '==' as EQ operator
+      - See '5' → INTEGER_LITERAL
+
+================================================================================
+                        6. DELIMITERS
+================================================================================
+
+Delimiters are punctuation marks used to structure the code.
+
+┌────────────┬─────────┬──────────────────────────────────┐
+│ Delimiter  │ Symbol  │ Description                      │
+├────────────┼─────────┼──────────────────────────────────┤
+│ LPAREN     │    (    │ Left parenthesis                 │
+│ RPAREN     │    )    │ Right parenthesis                │
+│ LBRACE     │    {    │ Left brace (block start)         │
+│ RBRACE     │    }    │ Right brace (block end)          │
+│ SEMICOLON  │    ;    │ Statement terminator             │
+│ COMMA      │    ,    │ Separator (params, args, exprs)  │
+└────────────┴─────────┴──────────────────────────────────┘
+
+USAGE EXAMPLES:
+   ( )  - Function calls, expressions, conditions
+   { }  - Code blocks, function bodies
+   ;    - End of statements
+   ,    - Separate parameters, arguments, expressions
+
+================================================================================
+                        7. COMMENTS
+================================================================================
+
+7.1 SINGLE-LINE COMMENTS:
+   
+   SYNTAX:
+      // comment text
+   
+   DESCRIPTION:
+      Everything from '//' to the end of the line is ignored
+   
+   EXAMPLES:
+      // This is a comment
+      int x;  // Declare variable x
+      // show x;  (this line is commented out)
+   
+   RECOGNITION RULE:
+      When '//' is encountered:
+      1. Skip all characters until newline '\n'
+      2. Do not generate any token
+      3. Continue lexing from next line
+
+7.2 MULTI-LINE COMMENTS:
+   NOT SUPPORTED in this language
+
+================================================================================
+                        8. WHITESPACE
+================================================================================
+
+Whitespace characters are used to separate tokens but are otherwise ignored.
+
+WHITESPACE CHARACTERS:
+   - Space: ' '
+   - Tab: '\t'
+   - Carriage return: '\r'
+   - Newline: '\n'
+
+RECOGNITION RULE:
+   Whitespace is skipped and does not produce tokens.
+   It serves only to separate tokens.
+
+EXAMPLES:
+   "int x;" → Same as "int    x   ;"
+   "x=5"    → Same as "x = 5"
+
+================================================================================
+                        9. TOKEN PRIORITY
+================================================================================
+
+When multiple patterns could match, use this priority order:
+
+1. KEYWORDS (highest priority)
+   - Check if identifier matches keyword list
+   - Example: "int" is keyword, not identifier
+
+2. IDENTIFIERS
+   - If not a keyword, treat as identifier
+
+3. TWO-CHARACTER OPERATORS
+   - Check before single-character operators
+   - Example: "==" before "="
+
+4. SINGLE-CHARACTER OPERATORS
+
+5. DELIMITERS
+
+6. LITERALS (numbers, chars)
+
+7. WHITESPACE (ignored)
+
+8. COMMENTS (ignored)
+
+================================================================================
+                        10. LEXICAL ERROR DETECTION
+================================================================================
+
+The lexer detects the following errors:
+
+10.1 UNKNOWN CHARACTER:
+   Error: Character not recognized by lexer
+   Example: '@', '#', '$', '^'
+   Message: "Lexical Error at line X:Y: Unknown character 'C'"
+
+10.2 INVALID NUMBER FORMAT:
+   Error: Multiple decimal points in number
+   Example: 3.14.15
+   Message: "Lexical Error at line X:Y: Invalid number format"
+
+10.3 UNTERMINATED CHAR LITERAL:
+   Error: Character literal not closed
+   Example: 'a
+   Message: "Lexical Error at line X:Y: Unterminated char literal"
+
+10.4 INVALID CHAR LITERAL:
+   Error: More than one character in char literal
+   Example: 'abc'
+   Message: "Lexical Error at line X:Y: Char literal must be single character"
+
+================================================================================
+                        11. COMPLETE TOKEN LIST
+================================================================================
+
+TOTAL TOKENS: 41
+
+KEYWORDS (15):
+   INT, FLOAT, CHAR, VOID, IF, ELIF, ELSE, LOOP, FROM, TO, STEP, 
+   SHOW, TELL, RETURN, FUNC
+
+IDENTIFIERS (1):
+   IDENTIFIER
+
+LITERALS (3):
+   INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL
+
+OPERATORS (15):
+   PLUS, MINUS, MULTIPLY, DIVIDE, MODULO, ASSIGN, EQ, NEQ, LT, GT, 
+   LTE, GTE, AND, OR, NOT
+
+DELIMITERS (6):
+   LPAREN, RPAREN, LBRACE, RBRACE, SEMICOLON, COMMA
+
+SPECIAL (1):
+   EOF (End of File)
+
+================================================================================
+                        12. LEXICAL ANALYSIS ALGORITHM
+================================================================================
+
+MAIN ALGORITHM:
+
+1. Initialize:
+   - position = 0
+   - line = 1
+   - column = 1
+   - tokens = []
+
+2. While not at end of source:
+   a. Skip whitespace
+   b. Skip comments
+   c. Get current character
+   
+   d. If digit:
+      - Read number (integer or float)
+      - Add token to list
+   
+   e. Else if letter or '_':
+      - Read identifier
+      - Check if keyword
+      - Add token to list
+   
+   f. Else if single quote:
+      - Read char literal
+      - Add token to list
+   
+   g. Else if operator character:
+      - Check for 2-char operator first
+      - Then check 1-char operator
+      - Add token to list
+   
+   h. Else if delimiter:
+      - Add token to list
+   
+   i. Else:
+      - Report lexical error
+      - Skip character
+
+3. Add EOF token
+
+4. Return tokens and errors
+
+================================================================================
+                        13. EXAMPLE TOKENIZATION
+================================================================================
+
+SOURCE CODE:
+   int x = 5 + 3;
+   show x;
+
+TOKENIZATION PROCESS:
+
+Position 0: 'i'
+   - Letter → Read identifier
+   - Result: "int"
+   - Check keywords → Found "int"
+   - Token: INT
+
+Position 3: ' '
+   - Whitespace → Skip
+
+Position 4: 'x'
+   - Letter → Read identifier
+   - Result: "x"
+   - Not a keyword
+   - Token: IDENTIFIER(x)
+
+Position 5: ' '
+   - Whitespace → Skip
+
+Position 6: '='
+   - Operator → Check next char
+   - Next is ' ' (not '=')
+   - Token: ASSIGN
+
+Position 7: ' '
+   - Whitespace → Skip
+
+Position 8: '5'
+   - Digit → Read number
+   - Result: "5"
+   - No decimal point
+   - Token: INTEGER_LITERAL(5)
+
+Position 9: ' '
+   - Whitespace → Skip
+
+Position 10: '+'
+   - Operator
+   - Token: PLUS
+
+Position 11: ' '
+   - Whitespace → Skip
+
+Position 12: '3'
+   - Digit → Read number
+   - Result: "3"
+   - Token: INTEGER_LITERAL(3)
+
+Position 13: ';'
+   - Delimiter
+   - Token: SEMICOLON
+
+Position 14: '\n'
+   - Whitespace → Skip (increment line)
+
+Position 15: 's'
+   - Letter → Read identifier
+   - Result: "show"
+   - Check keywords → Found "show"
+   - Token: SHOW
+
+Position 19: ' '
+   - Whitespace → Skip
+
+Position 20: 'x'
+   - Letter → Read identifier
+   - Result: "x"
+   - Token: IDENTIFIER(x)
+
+Position 21: ';'
+   - Delimiter
+   - Token: SEMICOLON
+
+Position 22: EOF
+   - Token: EOF
+
+FINAL TOKEN STREAM:
+   [INT, IDENTIFIER(x), ASSIGN, INTEGER_LITERAL(5), PLUS, 
+    INTEGER_LITERAL(3), SEMICOLON, SHOW, IDENTIFIER(x), 
+    SEMICOLON, EOF]
+
+================================================================================
+                        14. SUMMARY
+================================================================================
+
+The lexical analyzer (lexer) is the first phase of the compiler that:
+
+1. Reads source code character by character
+2. Groups characters into meaningful tokens
+3. Classifies tokens by type
+4. Tracks line and column numbers for error reporting
+5. Skips whitespace and comments
+6. Detects lexical errors
+
+OUTPUT:
+   - List of tokens with type, value, line, and column
+   - List of lexical errors (if any)
+
+NEXT PHASE:
+   The token stream is passed to the Parser (Phase 2) for syntax analysis.
+
+================================================================================
+                        END OF LEXICAL RULES
+================================================================================

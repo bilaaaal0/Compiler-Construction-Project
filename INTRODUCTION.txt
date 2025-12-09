@@ -1,0 +1,287 @@
+================================================================================
+                    MINI LANGUAGE COMPILER - INTRODUCTION
+================================================================================
+
+PROJECT: Custom Domain-Specific Language (DSL) Compiler
+TEAM: [Your Team Name]
+COURSE: Compiler Construction
+SEMESTER: [Your Semester]
+
+================================================================================
+                        1. LANGUAGE OVERVIEW
+================================================================================
+
+This project implements a complete compiler for a custom mini programming 
+language designed for educational purposes. The language supports fundamental 
+programming constructs including variables, control flow, loops, functions, 
+and I/O operations.
+
+LANGUAGE NAME: Mini Language (Educational DSL)
+
+PURPOSE:
+   - Demonstrate all 6 phases of compilation
+   - Provide hands-on compiler construction experience
+   - Support basic algorithmic problem-solving
+
+================================================================================
+                        2. LANGUAGE FEATURES
+================================================================================
+
+2.1 DATA TYPES:
+   • int      - Integer numbers (4 bytes)
+   • float    - Floating-point numbers (4 bytes)
+   • char     - Single characters (1 byte)
+   • void     - No value (functions only)
+
+2.2 CONTROL STRUCTURES:
+   • if-elif-else    - Conditional branching
+   • loop            - Iteration (for/while style)
+
+2.3 FUNCTIONS:
+   • Function declaration with parameters
+   • Return statements
+   • Recursion support
+   • Parameter passing by value
+
+2.4 I/O OPERATIONS:
+   • show    - Output (print)
+   • tell    - Input (read)
+
+2.5 OPERATORS:
+   • Arithmetic: +, -, *, /, %
+   • Relational: ==, !=, <, >, <=, >=
+   • Logical: &&, ||, !
+   • Assignment: =
+
+================================================================================
+                        3. SAMPLE PROGRAMS
+================================================================================
+
+EXAMPLE 1: Basic Arithmetic
+   int x = 5;
+   int y = 3;
+   int sum = x + y;
+   show sum;
+
+EXAMPLE 2: Conditional
+   int score = 85;
+   if (score >= 90) {
+      show 1;
+   } elif (score >= 80) {
+      show 2;
+   } else {
+      show 3;
+   }
+
+EXAMPLE 3: Loop
+   int sum = 0;
+   loop from i = 1 to 10 {
+      sum = sum + i;
+   }
+   show sum;
+
+EXAMPLE 4: Function with Recursion
+   func int factorial(int n) {
+      if (n <= 1) {
+         return 1;
+      }
+      return n * factorial(n - 1);
+   }
+   int result = factorial(5);
+   show result;
+
+================================================================================
+                        4. LEXICAL RULES (SUMMARY)
+================================================================================
+
+4.1 KEYWORDS (15):
+   int, float, char, void, if, elif, else, loop, from, to, step, 
+   show, tell, return, func
+
+4.2 IDENTIFIERS:
+   Pattern: [a-zA-Z_][a-zA-Z0-9_]*
+   Examples: x, myVar, sum_total, _temp
+
+4.3 LITERALS:
+   • Integer: [0-9]+                    (e.g., 42, 123)
+   • Float: [0-9]+ '.' [0-9]+          (e.g., 3.14, 0.5)
+   • Char: ' [character] '             (e.g., 'a', 'Z')
+
+4.4 OPERATORS:
+   Single: +, -, *, /, %, =, <, >, !
+   Double: ==, !=, <=, >=, &&, ||
+
+4.5 DELIMITERS:
+   ( ) { } ; ,
+
+4.6 COMMENTS:
+   // single-line comment
+
+================================================================================
+                        5. SEMANTIC RULES (SUMMARY)
+================================================================================
+
+5.1 TYPE SYSTEM:
+   • Exact match: int = int, float = float
+   • Widening: float = int (OK), int = char (OK)
+   • Narrowing: int = float (ERROR)
+
+5.2 TYPE COERCION:
+   • int + int → int
+   • int + float → float
+   • char + int → int
+
+5.3 SCOPE RULES:
+   • Block scope: { } creates new scope
+   • Variable shadowing allowed
+   • Lookup: current → parent → global
+
+5.4 DECLARATION RULES:
+   • Variables must be declared before use
+   • No redeclaration in same scope
+   • Functions declared before calls
+
+5.5 INITIALIZATION RULES:
+   • Variables must be initialized before use
+   • Input (tell) initializes variables
+   • Loop variables auto-initialized
+
+5.6 FUNCTION RULES:
+   • Non-void functions must return value
+   • Void functions cannot return value
+   • Argument count and types must match
+   • Recursion supported
+
+================================================================================
+                        6. COMPILER PHASES
+================================================================================
+
+PHASE 1: LEXICAL ANALYSIS
+   Input:  Source code (text)
+   Output: Token stream
+   Task:   Recognize keywords, identifiers, literals, operators
+
+PHASE 2: SYNTAX ANALYSIS
+   Input:  Token stream
+   Output: Abstract Syntax Tree (AST)
+   Task:   Check grammar rules, build tree structure
+
+PHASE 3: SEMANTIC ANALYSIS
+   Input:  AST
+   Output: Annotated AST + Symbol Table
+   Task:   Type checking, scope management, declaration checking
+
+PHASE 4: INTERMEDIATE CODE GENERATION
+   Input:  Annotated AST
+   Output: Three-Address Code (TAC)
+   Task:   Generate intermediate representation
+
+PHASE 5: CODE OPTIMIZATION
+   Input:  TAC
+   Output: Optimized TAC
+   Task:   Constant folding, dead code elimination
+
+PHASE 6: CODE GENERATION
+   Input:  Optimized TAC
+   Output: Assembly code
+   Task:   Generate target machine code
+
+================================================================================
+                        7. IMPLEMENTATION DETAILS
+================================================================================
+
+PROGRAMMING LANGUAGE: Python 3.x
+
+PARSER TYPE: Recursive Descent (Top-Down)
+
+KEY COMPONENTS:
+   • lexer.py              - Lexical analyzer
+   • parser.py             - Syntax analyzer
+   • semantic_analyzer.py  - Semantic analyzer
+   • icg.py                - Intermediate code generator
+   • optimizer.py          - Code optimizer
+   • code_generator.py     - Final code generator
+   • compiler.py           - Main orchestrator
+
+TOTAL LINES OF CODE: ~2000+ lines
+
+================================================================================
+                        8. ERROR HANDLING
+================================================================================
+
+LEXICAL ERRORS:
+   • Unknown characters
+   • Invalid number format
+   • Unterminated char literal
+
+SYNTAX ERRORS:
+   • Missing semicolons
+   • Unmatched braces
+   • Invalid token sequences
+
+SEMANTIC ERRORS:
+   • Undeclared variables
+   • Type mismatches
+   • Uninitialized variables
+   • Function call errors
+
+================================================================================
+                        9. OUTPUT FILES
+================================================================================
+
+For input file "program.txt", compiler generates:
+
+   • program_output/Phase1_Lexer_Output_Tokens.txt
+   • program_output/Phase2_Parser_Output_AST.txt
+   • program_output/Phase3_Semantic_Output_SymbolTable.txt
+   • program_output/Phase4_ICG_Output_TAC.txt
+   • program_output/Phase5_Optimizer_Output_OptimizedTAC.txt
+   • program_output/Phase6_CodeGen_Output_Assembly.asm
+   • program_output/00_COMPILATION_SUMMARY.txt
+
+================================================================================
+                        10. USAGE
+================================================================================
+
+COMMAND LINE:
+   python compiler.py <source_file>
+
+EXAMPLE:
+   python compiler.py test.txt
+
+INTERACTIVE MODE:
+   python compiler.py --interactive
+
+================================================================================
+                        11. PROJECT DELIVERABLES
+================================================================================
+
+✓ Complete source code (all 6 phases)
+✓ Formal grammar specification (BNF)
+✓ Lexical rules documentation
+✓ Semantic rules documentation
+✓ Handwritten artifacts (DFA, parse trees, symbol table)
+✓ Test cases (3+ unique examples)
+✓ Working demonstration
+✓ Project report and reflection
+
+================================================================================
+                        12. CONCLUSION
+================================================================================
+
+This mini language compiler demonstrates a complete understanding of compiler
+construction principles. It successfully implements all six classical phases
+of compilation, from lexical analysis to code generation, with proper error
+handling and optimization techniques.
+
+The language is simple yet powerful enough to write meaningful programs
+including recursive functions, nested control structures, and complex
+expressions. The compiler generates optimized intermediate code and final
+assembly output suitable for execution.
+
+This project serves as a comprehensive educational tool for understanding
+how programming languages are processed and executed by computers.
+
+================================================================================
+                        END OF INTRODUCTION
+================================================================================

@@ -1,0 +1,21 @@
+======================================================================
+PHASE 1 OUTPUT: TOKENS
+======================================================================
+
+Total Tokens: 15
+
+  1. Token(INT, 'int', 4:1)
+  2. Token(IDENTIFIER, 'i1', 4:5)
+  3. Token(ASSIGN, '=', 4:9)
+  4. Token(INTEGER_LITERAL, 0, 4:11)
+  5. Token(SEMICOLON, ';', 4:12)
+  6. Token(INT, 'int', 6:1)
+  7. Token(IDENTIFIER, 'end', 6:5)
+  8. Token(SEMICOLON, ';', 6:8)
+  9. Token(TELL, 'tell', 7:1)
+ 10. Token(IDENTIFIER, 'end', 7:6)
+ 11. Token(SEMICOLON, ';', 7:9)
+ 12. Token(SHOW, 'show', 9:1)
+ 13. Token(IDENTIFIER, 'end', 9:6)
+ 14. Token(SEMICOLON, ';', 9:9)
+ 15. Token(EOF, None, 11:1)

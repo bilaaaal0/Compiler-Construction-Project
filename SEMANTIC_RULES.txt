@@ -1,0 +1,854 @@
+================================================================================
+                    SEMANTIC RULES DOCUMENTATION
+                    PHASE 3: SEMANTIC ANALYSIS
+================================================================================
+
+PROJECT: Mini Language Compiler
+LANGUAGE: Custom Domain-Specific Language (DSL)
+PURPOSE: Type checking, scope management, and semantic validation
+
+================================================================================
+                        1. OVERVIEW
+================================================================================
+
+Semantic analysis is the third phase of compilation that ensures the program
+is semantically correct beyond just syntactic correctness. It performs:
+
+1. TYPE CHECKING - Ensures operations are performed on compatible types
+2. SCOPE MANAGEMENT - Tracks variable visibility and lifetime
+3. DECLARATION CHECKING - Ensures variables are declared before use
+4. INITIALIZATION CHECKING - Ensures variables are initialized before use
+5. FUNCTION VALIDATION - Checks function calls and return statements
+6. SYMBOL TABLE CONSTRUCTION - Maintains information about all identifiers
+
+================================================================================
+                        2. TYPE SYSTEM
+================================================================================
+
+2.1 PRIMITIVE TYPES:
+
+   ┌──────────┬──────────┬─────────────────────────────────┐
+   │ Type     │ Size     │ Description                     │
+   ├──────────┼──────────┼─────────────────────────────────┤
+   │ int      │ 4 bytes  │ Integer numbers                 │
+   │ float    │ 4 bytes  │ Floating-point numbers          │
+   │ char     │ 1 byte   │ Single character                │
+   │ void     │ N/A      │ No value (functions only)       │
+   └──────────┴──────────┴─────────────────────────────────┘
+
+2.2 TYPE COMPATIBILITY RULES:
+
+   RULE 1: EXACT MATCH
+      int = int       ✓ OK
+      float = float   ✓ OK
+      char = char     ✓ OK
+
+   RULE 2: WIDENING CONVERSION (Implicit, Safe)
+      float = int     ✓ OK  (int promoted to float)
+      int = char      ✓ OK  (char promoted to int)
+
+   RULE 3: NARROWING CONVERSION (Explicit, Unsafe)
+      int = float     ✗ ERROR (precision loss)
+      char = int      ✗ ERROR (potential overflow)
+
+   RULE 4: INCOMPATIBLE TYPES
+      int = void      ✗ ERROR
+      char = float    ✗ ERROR
+
+2.3 TYPE COERCION IN EXPRESSIONS:
+
+   ARITHMETIC OPERATIONS:
+      int + int       → int
+      float + float   → float
+      int + float     → float (int promoted)
+      float + int     → float (int promoted)
+      char + int      → int (char promoted)
+      char + char     → int (both promoted)
+
+   RELATIONAL OPERATIONS:
+      int == int      → bool
+      float == float  → bool
+      int == float    → bool (comparison allowed)
+      char == char    → bool
+      char == int     → bool (comparison allowed)
+
+   LOGICAL OPERATIONS:
+      bool && bool    → bool
+      bool || bool    → bool
+      !bool           → bool
+
+2.4 TYPE INFERENCE:
+
+   The compiler infers types for expressions:
+   
+   x = 5 + 3           → Expression type: int
+   y = 3.14 + 2        → Expression type: float
+   z = x * 2           → Expression type: int
+   w = x + 3.14        → Expression type: float
+
+================================================================================
+                        3. SCOPE MANAGEMENT
+================================================================================
+
+3.1 SCOPE HIERARCHY:
+
+   Level 0: GLOBAL SCOPE
+      - Variables declared outside any block
+      - Functions declared at top level
+      - Visible throughout the program
+
+   Level 1+: LOCAL SCOPES
+      - Variables declared inside blocks { }
+      - Function parameters
+      - Loop variables
+      - Visible only within the block
+
+3.2 SCOPE RULES:
+
+   RULE 1: DECLARATION SCOPE
+      Variables are visible from declaration point to end of scope.
+      
+      Example:
+         int x = 10;      // x visible from here
+         {
+            int y = 20;   // y visible only in this block
+            show x;       // ✓ OK: x is visible
+            show y;       // ✓ OK: y is visible
+         }
+         show x;          // ✓ OK: x still visible
+         show y;          // ✗ ERROR: y out of scope
+
+   RULE 2: VARIABLE SHADOWING
+      Inner scope variables can shadow outer scope variables.
+      
+      Example:
+         int x = 10;      // Global x
+         {
+            int x = 20;   // Local x (shadows global)
+            show x;       // Shows 20 (local x)
+         }
+         show x;          // Shows 10 (global x)
+
+   RULE 3: SCOPE LIFETIME
+      Variables are destroyed when scope exits.
+      
+      Example:
+         {
+            int temp = 5;
+            show temp;    // ✓ OK
+         }
+         // temp is destroyed here
+         show temp;       // ✗ ERROR: temp not in scope
+
+   RULE 4: NESTED SCOPES
+      Inner scopes can access outer scope variables.
+      
+      Example:
+         int x = 10;
+         {
+            int y = 20;
+            {
+               int z = 30;
+               show x;    // ✓ OK: x from global
+               show y;    // ✓ OK: y from parent
+               show z;    // ✓ OK: z from current
+            }
+         }
+
+   RULE 5: FUNCTION SCOPE
+      Functions have their own scope.
+      Parameters are local to the function.
+      
+      Example:
+         func int add(int a, int b) {
+            int sum = a + b;  // sum is local
+            return sum;
+         }
+         // a, b, sum not accessible here
+
+3.3 SCOPE LOOKUP ALGORITHM:
+
+   When looking up a variable:
+   1. Search current scope
+   2. If not found, search parent scope
+   3. Continue up to global scope
+   4. If not found anywhere, report error
+
+   Example:
+      int x = 10;        // Scope 0
+      {
+         int y = 20;     // Scope 1
+         {
+            int z = 30;  // Scope 2
+            show x;      // Lookup: Scope 2 → Scope 1 → Scope 0 (found)
+            show y;      // Lookup: Scope 2 → Scope 1 (found)
+            show z;      // Lookup: Scope 2 (found)
+         }
+      }
+
+================================================================================
+                        4. DECLARATION RULES
+================================================================================
+
+4.1 VARIABLE DECLARATION:
+
+   RULE 1: DECLARATION BEFORE USE
+      Variables must be declared before they are used.
+      
+      ✗ INVALID:
+         x = 5;           // ERROR: x not declared
+         int x;
+      
+      ✓ VALID:
+         int x;
+         x = 5;           // OK: x declared
+
+   RULE 2: NO REDECLARATION IN SAME SCOPE
+      Cannot declare the same variable twice in the same scope.
+      
+      ✗ INVALID:
+         int x;
+         int x;           // ERROR: x already declared
+      
+      ✓ VALID:
+         int x;
+         {
+            int x;        // OK: different scope
+         }
+
+   RULE 3: DECLARATION WITH INITIALIZATION
+      Variables can be initialized at declaration.
+      
+      ✓ VALID:
+         int x = 10;
+         float y = 3.14;
+         char c = 'a';
+
+   RULE 4: DECLARATION WITHOUT INITIALIZATION
+      Variables can be declared without initialization.
+      
+      ✓ VALID:
+         int x;           // Declared but not initialized
+         x = 10;          // Now initialized
+
+4.2 FUNCTION DECLARATION:
+
+   RULE 1: FUNCTION DECLARATION BEFORE CALL
+      Functions must be declared before they are called.
+      
+      ✗ INVALID:
+         int x = add(5, 3);    // ERROR: add not declared
+         func int add(int a, int b) { ... }
+      
+      ✓ VALID:
+         func int add(int a, int b) { ... }
+         int x = add(5, 3);    // OK: add declared
+
+   RULE 2: NO FUNCTION REDECLARATION
+      Cannot declare the same function twice.
+      
+      ✗ INVALID:
+         func int add(int a, int b) { ... }
+         func int add(int x, int y) { ... }  // ERROR
+
+   RULE 3: PARAMETER NAMES MUST BE UNIQUE
+      Function parameters must have unique names.
+      
+      ✗ INVALID:
+         func int add(int x, int x) { ... }  // ERROR
+      
+      ✓ VALID:
+         func int add(int x, int y) { ... }
+
+================================================================================
+                        5. INITIALIZATION RULES
+================================================================================
+
+5.1 VARIABLE INITIALIZATION:
+
+   RULE 1: USE BEFORE INITIALIZATION
+      Variables must be initialized before use.
+      
+      ✗ INVALID:
+         int x;
+         show x;          // ERROR: x not initialized
+      
+      ✓ VALID:
+         int x = 10;
+         show x;          // OK: x initialized
+
+   RULE 2: INITIALIZATION TRACKING
+      The compiler tracks which variables are initialized.
+      
+      Example:
+         int x;           // x is NOT initialized
+         x = 5;           // x is NOW initialized
+         show x;          // OK: x is initialized
+
+   RULE 3: INITIALIZATION IN EXPRESSIONS
+      Cannot use uninitialized variables in expressions.
+      
+      ✗ INVALID:
+         int x;
+         int y = x + 5;   // ERROR: x not initialized
+      
+      ✓ VALID:
+         int x = 10;
+         int y = x + 5;   // OK: x initialized
+
+   RULE 4: INPUT INITIALIZES VARIABLES
+      Reading input initializes the variable.
+      
+      ✓ VALID:
+         int x;
+         tell x;          // x is now initialized
+         show x;          // OK: x initialized by input
+
+5.2 LOOP VARIABLE INITIALIZATION:
+
+   RULE 1: RANGE-BASED LOOP WITH INITIALIZATION
+      Loop variable is initialized by the loop.
+      
+      ✓ VALID:
+         loop from i = 0 to 10 {
+            show i;       // OK: i initialized by loop
+         }
+
+   RULE 2: RANGE-BASED LOOP WITH EXISTING VARIABLE
+      Existing variable must be initialized before loop.
+      
+      ✗ INVALID:
+         int i;
+         loop from i to 10 {  // ERROR: i not initialized
+            show i;
+         }
+      
+      ✓ VALID:
+         int i = 0;
+         loop from i to 10 {  // OK: i initialized
+            show i;
+         }
+
+   RULE 3: CONDITIONAL LOOP
+      Loop variables must be initialized before loop.
+      
+      ✗ INVALID:
+         int x;
+         loop (x < 10) {      // ERROR: x not initialized
+            x = x + 1;
+         }
+      
+      ✓ VALID:
+         int x = 0;
+         loop (x < 10) {      // OK: x initialized
+            x = x + 1;
+         }
+
+================================================================================
+                        6. TYPE CHECKING RULES
+================================================================================
+
+6.1 ASSIGNMENT TYPE CHECKING:
+
+   RULE 1: COMPATIBLE TYPES
+      Right-hand side type must be compatible with left-hand side.
+      
+      ✓ VALID:
+         int x = 5;           // int = int
+         float y = 3.14;      // float = float
+         float z = 10;        // float = int (widening)
+      
+      ✗ INVALID:
+         int x = 3.14;        // int = float (narrowing)
+
+   RULE 2: EXPRESSION TYPE CHECKING
+      Expression type must match variable type.
+      
+      ✓ VALID:
+         int x = 5 + 3;       // int = int
+         float y = 3.14 + 2;  // float = float
+      
+      ✗ INVALID:
+         int x = 3.14 + 2.5;  // int = float
+
+6.2 ARITHMETIC OPERATION TYPE CHECKING:
+
+   RULE 1: NUMERIC OPERANDS
+      Arithmetic operators require numeric operands.
+      
+      ✓ VALID:
+         int x = 5 + 3;       // int + int
+         float y = 3.14 * 2;  // float * int
+      
+      ✗ INVALID:
+         int x = 'a' + 'b';   // char + char (promoted to int)
+
+   RULE 2: RESULT TYPE INFERENCE
+      Result type is determined by operand types.
+      
+      int + int       → int
+      float + int     → float
+      int + float     → float
+      float + float   → float
+
+6.3 RELATIONAL OPERATION TYPE CHECKING:
+
+   RULE 1: COMPARABLE TYPES
+      Relational operators require comparable types.
+      
+      ✓ VALID:
+         if (x == 5) { ... }      // int == int
+         if (y > 3.14) { ... }    // float > float
+         if (x < y) { ... }       // int < float (allowed)
+      
+      ✗ INVALID:
+         if (x == "hello") { ... } // int == string (not supported)
+
+   RULE 2: RESULT TYPE
+      Relational operations always return bool.
+      
+      x == y  → bool
+      x < y   → bool
+      x >= y  → bool
+
+6.4 LOGICAL OPERATION TYPE CHECKING:
+
+   RULE 1: BOOLEAN OPERANDS
+      Logical operators work on boolean expressions.
+      
+      ✓ VALID:
+         if (x > 5 && y < 10) { ... }
+         if (x == 0 || y == 0) { ... }
+         if (!(x > 5)) { ... }
+
+   RULE 2: RESULT TYPE
+      Logical operations always return bool.
+      
+      a && b  → bool
+      a || b  → bool
+      !a      → bool
+
+================================================================================
+                        7. FUNCTION SEMANTICS
+================================================================================
+
+7.1 FUNCTION DECLARATION RULES:
+
+   RULE 1: RETURN TYPE SPECIFICATION
+      Functions must specify a return type.
+      
+      ✓ VALID:
+         func int add(int a, int b) { ... }
+         func void printMessage() { ... }
+
+   RULE 2: PARAMETER TYPE SPECIFICATION
+      All parameters must have types.
+      
+      ✓ VALID:
+         func int add(int a, int b) { ... }
+      
+      ✗ INVALID:
+         func int add(a, b) { ... }  // Missing types
+
+   RULE 3: UNIQUE PARAMETER NAMES
+      Parameter names must be unique within function.
+      
+      ✗ INVALID:
+         func int add(int x, int x) { ... }
+
+7.2 FUNCTION CALL RULES:
+
+   RULE 1: ARGUMENT COUNT MATCHING
+      Number of arguments must match number of parameters.
+      
+      func int add(int a, int b) { ... }
+      
+      ✓ VALID:
+         int x = add(5, 3);       // 2 arguments
+      
+      ✗ INVALID:
+         int x = add(5);          // ERROR: 1 argument
+         int x = add(5, 3, 2);    // ERROR: 3 arguments
+
+   RULE 2: ARGUMENT TYPE MATCHING
+      Argument types must be compatible with parameter types.
+      
+      func int add(int a, int b) { ... }
+      
+      ✓ VALID:
+         int x = add(5, 3);       // int, int
+      
+      ✗ INVALID:
+         int x = add(3.14, 2.5);  // float, float
+
+   RULE 3: FUNCTION MUST BE DECLARED
+      Function must be declared before call.
+      
+      ✗ INVALID:
+         int x = add(5, 3);       // ERROR: add not declared
+
+7.3 RETURN STATEMENT RULES:
+
+   RULE 1: NON-VOID FUNCTIONS MUST RETURN
+      Functions with return type must have return statement.
+      
+      ✗ INVALID:
+         func int add(int a, int b) {
+            int sum = a + b;
+            // ERROR: No return statement
+         }
+      
+      ✓ VALID:
+         func int add(int a, int b) {
+            return a + b;
+         }
+
+   RULE 2: VOID FUNCTIONS CANNOT RETURN VALUE
+      Void functions should not return a value.
+      
+      ✗ INVALID:
+         func void printMessage() {
+            return 5;         // ERROR: void function
+         }
+      
+      ✓ VALID:
+         func void printMessage() {
+            show 5;
+            return;           // OK: empty return
+         }
+
+   RULE 3: RETURN TYPE MATCHING
+      Return value type must match function return type.
+      
+      func int getValue() {
+         return 5;            // ✓ OK: int
+         return 3.14;         // ✗ ERROR: float
+      }
+
+   RULE 4: RETURN OUTSIDE FUNCTION
+      Return statements only allowed inside functions.
+      
+      ✗ INVALID:
+         int x = 5;
+         return x;            // ERROR: not in function
+
+7.4 RECURSION:
+
+   RULE 1: RECURSIVE CALLS ALLOWED
+      Functions can call themselves.
+      
+      ✓ VALID:
+         func int factorial(int n) {
+            if (n <= 1) {
+               return 1;
+            }
+            return n * factorial(n - 1);
+         }
+
+================================================================================
+                        8. LOOP SEMANTICS
+================================================================================
+
+8.1 RANGE-BASED LOOP RULES:
+
+   RULE 1: NUMERIC LOOP BOUNDS
+      Loop start, end, and step must be numeric.
+      
+      ✓ VALID:
+         loop from i = 0 to 10 step 2 { ... }
+      
+      ✗ INVALID:
+         loop from i = 'a' to 'z' { ... }  // char not allowed
+
+   RULE 2: LOOP VARIABLE TYPE
+      Loop variable must be int or float.
+      
+      ✓ VALID:
+         int i;
+         loop from i = 0 to 10 { ... }
+      
+      ✗ INVALID:
+         char c;
+         loop from c = 0 to 10 { ... }  // char not allowed
+
+   RULE 3: EXISTING VARIABLE MUST BE INITIALIZED
+      If using existing variable, it must be initialized.
+      
+      ✗ INVALID:
+         int i;
+         loop from i to 10 { ... }  // ERROR: i not initialized
+      
+      ✓ VALID:
+         int i = 0;
+         loop from i to 10 { ... }  // OK
+
+8.2 CONDITIONAL LOOP RULES:
+
+   RULE 1: BOOLEAN CONDITION
+      Loop condition must be a boolean expression.
+      
+      ✓ VALID:
+         loop (x < 10) { ... }
+         loop (x > 0 && y < 5) { ... }
+
+   RULE 2: VARIABLES MUST BE INITIALIZED
+      Variables in condition must be initialized.
+      
+      ✗ INVALID:
+         int x;
+         loop (x < 10) { ... }  // ERROR: x not initialized
+      
+      ✓ VALID:
+         int x = 0;
+         loop (x < 10) { ... }  // OK
+
+================================================================================
+                        9. I/O STATEMENT SEMANTICS
+================================================================================
+
+9.1 SHOW (OUTPUT) STATEMENT:
+
+   RULE 1: EXPRESSION EVALUATION
+      All expressions in show statement must be valid.
+      
+      ✓ VALID:
+         show x;
+         show x + 5;
+         show x, y, z;
+
+   RULE 2: VARIABLES MUST BE INITIALIZED
+      Variables in show statement must be initialized.
+      
+      ✗ INVALID:
+         int x;
+         show x;            // ERROR: x not initialized
+      
+      ✓ VALID:
+         int x = 10;
+         show x;            // OK
+
+9.2 TELL (INPUT) STATEMENT:
+
+   RULE 1: VARIABLE MUST BE DECLARED
+      Variable must be declared before input.
+      
+      ✗ INVALID:
+         tell x;            // ERROR: x not declared
+      
+      ✓ VALID:
+         int x;
+         tell x;            // OK
+
+   RULE 2: INPUT INITIALIZES VARIABLE
+      After input, variable is considered initialized.
+      
+      ✓ VALID:
+         int x;
+         tell x;            // x is now initialized
+         show x;            // OK: x initialized
+
+================================================================================
+                        10. SYMBOL TABLE STRUCTURE
+================================================================================
+
+10.1 SYMBOL TABLE ENTRY:
+
+   Each entry contains:
+   - Name: Identifier name
+   - Type: Data type (int, float, char, void)
+   - Scope Level: Which scope it belongs to
+   - Line: Line number of declaration
+   - Initialized: Whether variable is initialized
+   - Offset: Memory offset (for code generation)
+   - Is Function: Whether it's a function
+   - Param Types: Parameter types (for functions)
+   - Return Type: Return type (for functions)
+
+10.2 SYMBOL TABLE OPERATIONS:
+
+   INSERT:
+      - Add new symbol to current scope
+      - Check for redeclaration
+      - Assign memory offset
+
+   LOOKUP:
+      - Search from current scope to global
+      - Return symbol entry if found
+      - Return null if not found
+
+   ENTER_SCOPE:
+      - Push new scope onto stack
+      - Increment scope level
+
+   EXIT_SCOPE:
+      - Pop current scope from stack
+      - Decrement scope level
+      - Destroy local variables
+
+   UPDATE_INITIALIZED:
+      - Mark variable as initialized
+      - Used after assignment or input
+
+10.3 EXAMPLE SYMBOL TABLE:
+
+   Source Code:
+      int x = 10;
+      {
+         float y = 3.14;
+         {
+            char c = 'a';
+         }
+      }
+
+   Symbol Table:
+      Scope 0 (Global):
+         x: int, line=1, initialized=true, offset=0
+
+      Scope 1 (Block):
+         y: float, line=3, initialized=true, offset=4
+
+      Scope 2 (Nested):
+         c: char, line=5, initialized=true, offset=8
+
+================================================================================
+                        11. ERROR DETECTION
+================================================================================
+
+11.1 SEMANTIC ERRORS DETECTED:
+
+   1. UNDECLARED VARIABLE
+      Error: Variable used before declaration
+      Example: x = 5; (x not declared)
+
+   2. REDECLARATION
+      Error: Variable declared twice in same scope
+      Example: int x; int x;
+
+   3. TYPE MISMATCH
+      Error: Incompatible types in assignment
+      Example: int x = 3.14;
+
+   4. UNINITIALIZED VARIABLE
+      Error: Variable used before initialization
+      Example: int x; show x;
+
+   5. UNDECLARED FUNCTION
+      Error: Function called before declaration
+      Example: add(5, 3); (add not declared)
+
+   6. ARGUMENT COUNT MISMATCH
+      Error: Wrong number of arguments
+      Example: add(5); (expects 2 arguments)
+
+   7. ARGUMENT TYPE MISMATCH
+      Error: Wrong argument types
+      Example: add(3.14, 2.5); (expects int)
+
+   8. MISSING RETURN STATEMENT
+      Error: Non-void function without return
+      Example: func int getValue() { int x = 5; }
+
+   9. RETURN TYPE MISMATCH
+      Error: Return value type doesn't match
+      Example: func int getValue() { return 3.14; }
+
+   10. RETURN OUTSIDE FUNCTION
+       Error: Return statement not in function
+       Example: return 5; (in main program)
+
+   11. INVALID OPERAND TYPES
+       Error: Incompatible types in operation
+       Example: int x = "hello" + 5;
+
+   12. LOOP VARIABLE NOT INITIALIZED
+       Error: Loop variable used before init
+       Example: int i; loop from i to 10 { ... }
+
+11.2 ERROR MESSAGE FORMAT:
+
+   Semantic Error at line X: <error message>
+
+   Examples:
+      Semantic Error at line 5: Variable 'x' not declared
+      Semantic Error at line 10: Type mismatch: cannot assign float to int
+      Semantic Error at line 15: Variable 'y' used before initialization
+
+================================================================================
+                        12. SEMANTIC ANALYSIS ALGORITHM
+================================================================================
+
+12.1 MAIN ALGORITHM:
+
+   1. Initialize symbol table with global scope
+
+   2. First Pass: Register all functions
+      - Add function names to symbol table
+      - Store parameter types and return type
+
+   3. Second Pass: Analyze function bodies
+      - Enter function scope
+      - Add parameters to scope
+      - Analyze function body
+      - Check return statements
+      - Exit function scope
+
+   4. Third Pass: Analyze main program
+      - Analyze each statement
+      - Check types, scopes, initialization
+
+   5. Report all semantic errors
+
+12.2 VISITOR PATTERN:
+
+   The semantic analyzer uses the Visitor pattern to traverse the AST:
+
+   visit_Program(node)
+   visit_DeclStmt(node)
+   visit_AssignStmt(node)
+   visit_IfStmt(node)
+   visit_LoopStmt(node)
+   visit_FunctionDecl(node)
+   visit_FunctionCall(node)
+   visit_ReturnStmt(node)
+   visit_BinaryOp(node)
+   visit_UnaryOp(node)
+   visit_Identifier(node)
+   visit_Literal(node)
+
+12.3 TYPE CHECKING ALGORITHM:
+
+   For each expression:
+   1. Visit left operand → get type
+   2. Visit right operand → get type
+   3. Check type compatibility
+   4. Determine result type
+   5. Annotate AST node with type
+   6. Return result type
+
+================================================================================
+                        13. SUMMARY
+================================================================================
+
+The semantic analyzer ensures:
+
+✓ All variables are declared before use
+✓ All variables are initialized before use
+✓ Types are compatible in assignments and operations
+✓ Functions are declared before calls
+✓ Function calls match parameter count and types
+✓ Return statements match function return types
+✓ Scopes are properly managed
+✓ No redeclarations in same scope
+
+OUTPUT:
+   - Annotated AST with type information
+   - Symbol table with all declarations
+   - List of semantic errors (if any)
+
+NEXT PHASE:
+   The annotated AST and symbol table are passed to the Intermediate Code
+   Generator (Phase 4) for TAC generation.
+
+================================================================================
+                        END OF SEMANTIC RULES
+================================================================================
