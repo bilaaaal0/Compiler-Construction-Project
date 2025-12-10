@@ -6,25 +6,66 @@ Program
   statements:
     DeclStmt
       var_type: int
-      identifier: i1
+      identifier: i
       init_value:
         Literal
           value: 0
           lit_type: int
           line: 4
       line: 4
-    DeclStmt
-      var_type: int
-      identifier: end
-      init_value: None
+    LoopStmt
+      var_name: i
+      start_expr:
+        Literal
+          value: 0
+          lit_type: int
+          line: 6
+      end_expr:
+        Literal
+          value: 10
+          lit_type: int
+          line: 6
+      step_expr: None
+      block:
+        Block
+          statements:
+            IfStmt
+              condition:
+                BinaryOp
+                  left:
+                    BinaryOp
+                      left:
+                        Identifier
+                          name: i
+                          line: 8
+                          var_type: None
+                      operator: %
+                      right:
+                        Literal
+                          value: 2
+                          lit_type: int
+                          line: 8
+                      line: 8
+                      result_type: None
+                  operator: !=
+                  right:
+                    Literal
+                      value: 0
+                      lit_type: int
+                      line: 8
+                  line: 8
+                  result_type: None
+              if_block:
+                Block
+                  statements:
+                    PrintStmt
+                      expressions:
+                        Identifier
+                          name: i
+                          line: 10
+                          var_type: None
+                      line: 10
+              else_block: None
+              line: 8
       line: 6
-    InputStmt
-      identifier: end
-      line: 7
-    PrintStmt
-      expressions:
-        Identifier
-          name: end
-          line: 9
-          var_type: None
-      line: 9
+      use_existing_var: False

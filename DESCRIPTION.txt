@@ -57,7 +57,7 @@ MAIN COMMANDS
    Enter code line by line, type 'END' to compile.
 
 3. Run TAC interpreter:
-   python interpreter.py <output_folder>/Phase5_Optimizer_Output_OptimizedTAC.txt
+   python interpreter.py <output_folder>/Phase4_ICG_Output_TAC.txt
    
    Executes the optimized TAC code and shows program output.
 

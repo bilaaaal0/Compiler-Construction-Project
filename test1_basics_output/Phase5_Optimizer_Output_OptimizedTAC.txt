@@ -1,0 +1,56 @@
+MAIN:
+ALLOC x int
+x = 10
+ALLOC y int
+ALLOC pi float
+pi = 3.14
+ALLOC grade char
+grade = 'A'
+y = 5
+PRINT x
+PRINT y
+PRINT pi
+ALLOC result float
+t0 = x + pi
+result = t0
+PRINT result
+ALLOC code int
+code = grade
+PRINT code
+t1 = x > y
+IF_FALSE t1 GOTO L0
+PRINT 1
+GOTO L2
+L0:
+t2 = x == y
+IF_FALSE t2 GOTO L1
+PRINT 0
+GOTO L2
+L1:
+t3 = -1
+PRINT t3
+L2:
+ALLOC counter int
+counter = 0
+L3:
+t4 = counter < 3
+IF_FALSE t4 GOTO L4
+PRINT counter
+t5 = counter + 1
+counter = t5
+GOTO L3
+L4:
+counter = 0
+L5:
+t6 = counter <= 6
+IF_FALSE t6 GOTO L6
+PRINT counter
+t7 = counter + 2
+counter = t7
+GOTO L5
+L6:
+ALLOC x int
+x = 100
+PRINT x
+PRINT x
+END_MAIN

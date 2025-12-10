@@ -1,0 +1,47 @@
+// ===== TEST 1: BASIC FEATURES =====
+
+int x = 10;
+int y;
+float pi = 3.14;
+char grade = 'A';
+
+
+y = 5;
+
+
+show x, y, pi;
+
+
+float result = x + pi;
+show result;
+
+
+int code = grade;
+show code;
+
+
+if (x > y) {
+    show 1;
+} elif (x == y) {
+    show 0;
+} else {
+    show -1;
+}
+
+
+int counter = 0;
+loop (counter < 3) {
+    show counter;
+    counter = counter + 1;
+}
+
+
+loop from counter = 0 to 6 step 2 {
+    show counter;
+}
+
+{
+    int x = 100;  // Shadows outer x
+    show x;       // Shows 100
+}
+show x;           // Shows 10 (original x)

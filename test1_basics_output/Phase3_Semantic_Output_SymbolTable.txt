@@ -1,0 +1,15 @@
+======================================================================
+PHASE 3 OUTPUT: SYMBOL TABLE
+======================================================================
+
+
+Scope Level 0:
+Name            Type            Line     Init     Offset  
+----------------------------------------------------------------------
+x               int             3        True     0       
+y               int             4        True     4       
+pi              float           5        True     8       
+grade           char            6        True     12      
+result          float           15       True     13      
+code            int             19       True     17      
+counter         int             32       True     21      

@@ -1,0 +1,255 @@
+======================================================================
+PHASE 2 OUTPUT: ABSTRACT SYNTAX TREE (AST)
+======================================================================
+
+Program
+  statements:
+    DeclStmt
+      var_type: int
+      identifier: x
+      init_value:
+        Literal
+          value: 10
+          lit_type: int
+          line: 3
+      line: 3
+    DeclStmt
+      var_type: int
+      identifier: y
+      init_value: None
+      line: 4
+    DeclStmt
+      var_type: float
+      identifier: pi
+      init_value:
+        Literal
+          value: 3.14
+          lit_type: float
+          line: 5
+      line: 5
+    DeclStmt
+      var_type: char
+      identifier: grade
+      init_value:
+        Literal
+          value: A
+          lit_type: char
+          line: 6
+      line: 6
+    AssignStmt
+      identifier: y
+      expression:
+        Literal
+          value: 5
+          lit_type: int
+          line: 9
+      line: 9
+    PrintStmt
+      expressions:
+        Identifier
+          name: x
+          line: 12
+          var_type: None
+        Identifier
+          name: y
+          line: 12
+          var_type: None
+        Identifier
+          name: pi
+          line: 12
+          var_type: None
+      line: 12
+    DeclStmt
+      var_type: float
+      identifier: result
+      init_value:
+        BinaryOp
+          left:
+            Identifier
+              name: x
+              line: 15
+              var_type: None
+          operator: +
+          right:
+            Identifier
+              name: pi
+              line: 15
+              var_type: None
+          line: 15
+          result_type: None
+      line: 15
+    PrintStmt
+      expressions:
+        Identifier
+          name: result
+          line: 16
+          var_type: None
+      line: 16
+    DeclStmt
+      var_type: int
+      identifier: code
+      init_value:
+        Identifier
+          name: grade
+          line: 19
+          var_type: None
+      line: 19
+    PrintStmt
+      expressions:
+        Identifier
+          name: code
+          line: 20
+          var_type: None
+      line: 20
+    IfStmt
+      condition:
+        BinaryOp
+          left:
+            Identifier
+              name: x
+              line: 23
+              var_type: None
+          operator: >
+          right:
+            Identifier
+              name: y
+              line: 23
+              var_type: None
+          line: 23
+          result_type: None
+      if_block:
+        Block
+          statements:
+            PrintStmt
+              expressions:
+                Literal
+                  value: 1
+                  lit_type: int
+                  line: 24
+              line: 24
+      elif_parts:
+        tuple
+      else_block:
+        Block
+          statements:
+            PrintStmt
+              expressions:
+                UnaryOp
+                  operator: -
+                  operand:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 28
+                  line: 28
+                  result_type: None
+              line: 28
+      line: 23
+    DeclStmt
+      var_type: int
+      identifier: counter
+      init_value:
+        Literal
+          value: 0
+          lit_type: int
+          line: 32
+      line: 32
+    ConditionalLoopStmt
+      condition:
+        BinaryOp
+          left:
+            Identifier
+              name: counter
+              line: 33
+              var_type: None
+          operator: <
+          right:
+            Literal
+              value: 3
+              lit_type: int
+              line: 33
+          line: 33
+          result_type: None
+      block:
+        Block
+          statements:
+            PrintStmt
+              expressions:
+                Identifier
+                  name: counter
+                  line: 34
+                  var_type: None
+              line: 34
+            AssignStmt
+              identifier: counter
+              expression:
+                BinaryOp
+                  left:
+                    Identifier
+                      name: counter
+                      line: 35
+                      var_type: None
+                  operator: +
+                  right:
+                    Literal
+                      value: 1
+                      lit_type: int
+                      line: 35
+                  line: 35
+                  result_type: None
+              line: 35
+      line: 33
+    LoopStmt
+      var_name: counter
+      start_expr:
+        Literal
+          value: 0
+          lit_type: int
+          line: 39
+      end_expr:
+        Literal
+          value: 6
+          lit_type: int
+          line: 39
+      step_expr:
+        Literal
+          value: 2
+          lit_type: int
+          line: 39
+      block:
+        Block
+          statements:
+            PrintStmt
+              expressions:
+                Identifier
+                  name: counter
+                  line: 40
+                  var_type: None
+              line: 40
+      line: 39
+      use_existing_var: False
+    Block
+      statements:
+        DeclStmt
+          var_type: int
+          identifier: x
+          init_value:
+            Literal
+              value: 100
+              lit_type: int
+              line: 44
+          line: 44
+        PrintStmt
+          expressions:
+            Identifier
+              name: x
+              line: 45
+              var_type: None
+          line: 45
+    PrintStmt
+      expressions:
+        Identifier
+          name: x
+          line: 47
+          var_type: None
+      line: 47
